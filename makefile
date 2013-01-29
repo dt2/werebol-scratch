@@ -1,13 +1,15 @@
-all: coffee/main.js run-nj
-#all: coffee/main.js run-nk
-#all: coffee/main.js run-br
+all: coffee/main.js run-no
 
 run-nk:
 	./nodekit.sh
 run-br:
 	chromium-browser index.html
-run-nj:
+run-no:
 	node coffee/main.js
+run-r3:
+	./r3 -cs hello.r3
+run-pl:
+	perl hello.pl
 
 
 coffee/%.js: %.coffee
