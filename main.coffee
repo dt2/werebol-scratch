@@ -21,16 +21,22 @@ main = () ->
 	log "spawning"
 	
 	process.nextTick task "child", () ->	
-		ls = spawn "./r3", ["-cs","hello.r3"]
-	
-		ls.stdout.on "data", (data) ->
-		  log "stdout: " + data
+		ls = spawn "./r3", ["-cs","hello.r3"], {stdio: 'pipe'}
+		
+		ls.stdin.write "Ping\nPing2\n"
+		
+		ls.stdout.once "data", (data) ->
+			log "stdout 1: " + data
+			plog "send quit"
+			ls.stdin.write "quit\n"
+			ls.stdout.on "data", (data) ->
+				plog "stdout: " + data
 
 		ls.stderr.on "data", (data) ->
 		  log "stderr: " + data
 
 		ls.on "exit", (code) ->
-		  plog "child process exited with code " + code
+		  plog "child done res: " + code
 
 	plog "done"
 	
@@ -38,7 +44,7 @@ main = () ->
 plog = (o) ->
 	if o != undefined then log o
 	d = new Date()
-	header = "task: #{g.id}, #{g.desc} @#{d}"
+	header = "task: #{g.id}, #{g.name} @#{d}"
 	console.log header
 	console.log g.log
 	if inBrowser then $("#log").append "#{header}\n:#{g.log}\n"
