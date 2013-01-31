@@ -20,17 +20,21 @@ main = () ->
 	log "Have #{ if haveNode then "nodejs" else "no nodejs" }"
 	log "spawning"
 	
+	n = 0
 	process.nextTick task "child", () ->	
 		ls = spawn "./r3", ["-cs","hello.r3"], {stdio: 'pipe'}
 		
 		ls.stdin.write "Ping\nPing2\n"
 		
-		ls.stdout.once "data", (data) ->
-			log "stdout 1: " + data
-			plog "send quit"
-			ls.stdin.write "quit\n"
-			ls.stdout.on "data", (data) ->
-				plog "stdout: " + data
+		ls.stdout.on "data", (data) ->
+			log "stdout: " + data
+			++ n
+			if n < 10
+				plog "> #{n}"			
+				ls.stdin.write "#{n}\n"
+			else
+				plog "> quit"			
+				ls.stdin.write "quit\n"			
 
 		ls.stderr.on "data", (data) ->
 		  log "stderr: " + data

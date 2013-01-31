@@ -1,11 +1,14 @@
 rebol[]
-while [
+buf: copy #{}
+forever [
 	wait system/ports/input
-	data: to string! read system/ports/input
-	data <> "quit^/" 
-] [
-	probe data
+	data: read system/ports/input
+	append buf data
+	if parse buf [copy line to "^/" skip copy buf to end] [
+		line: to string! line
+		if "quit" = line [break]
+		probe line
+	]		
 ]
-print "bye"
 quit
 
