@@ -5,6 +5,8 @@ if haveNode
 	spawn = require('child_process').spawn
 
 g_id = 0
+ls = null
+nextTick = null
 
 G = (name) ->
 	this.log = []
@@ -19,33 +21,39 @@ main = () ->
 	log "Have #{ if haveNode then "nodejs" else "no nodejs" }"
 
 	log "spawning"	
-	ls = spawn "./r3", ["-cs","hello.r3"], {stdio: 'pipe'}
-	log "feeding"
-	ls.stdin.write "Ping\nPrepong\n"
+	ls = spawn "./r3", ["-cs","partner.r3"], {stdio: 'pipe'}
+
+	send "init"
 
 	n = 0
 	process.nextTick ticker = task "ticker", () ->
 		++ n
 		if n < 3
-			log "> #{n}"
-			ls.stdin.write "#{n}\n"				
-			setTimeout ticker, 1000
+			send "inc #{JSON.stringify [n]}"				
+			nextTick = setTimeout ticker, 1000
 		else
-			log "> quit"			
-			ls.stdin.write "quit\n"
+			send "quit"
 		plog()
 			
-	process.nextTick task "listen", () ->			
+	process.nextTick task "listen", () ->
 		
 		buf = ""
 		
 		ls.stdout.on "data", callout (data) ->
 			#log "stdout: " + data
 			buf += data
-			log "buf: #{buf}"
+			#log "buf: #{buf}"
+			if buf.match /^\*\* /
+				plog "aborting: #{buf}"
+				process.exit()
 			while m = buf.match /(.*?)\n([^]*)/m
-				log "#{m[1]} --- #{m[2]}"
+				line = m[1]
 				buf = m[2]
+				#log "got #{m[1]} --- #{m[2]}"
+				if line.match /^~ /
+					log "#{line}"
+				else
+					log "r3log: #{line}"
 			plog()		
 
 		ls.stderr.on "data", callout (data) ->
@@ -56,6 +64,9 @@ main = () ->
 
 	plog "done"
 	
+send = (s) ->
+	log "-> #{s}"
+	ls.stdin.write "#{s}\n"
 	
 plog = (o) ->
 	if o != undefined then log o
@@ -68,6 +79,7 @@ plog = (o) ->
 
 log = (o) ->
 	g.log.push o
+	o
 	
 callout = (f, go = g) ->
 	f.g = go

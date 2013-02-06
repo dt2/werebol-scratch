@@ -7,7 +7,7 @@ run-br:
 run-no:
 	node coffee/main.js
 run-r3:
-	./r3 -cs hello.r3
+	./r3 -cs partner.r3 main
 
 
 coffee/%.js: %.coffee
