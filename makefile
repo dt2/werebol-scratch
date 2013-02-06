@@ -8,8 +8,6 @@ run-no:
 	node coffee/main.js
 run-r3:
 	./r3 -cs hello.r3
-run-pl:
-	perl hello.pl
 
 
 coffee/%.js: %.coffee
