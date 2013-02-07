@@ -29,7 +29,8 @@ main = () ->
 	process.nextTick ticker = task "ticker", () ->
 		++ n
 		if n <= 1
-			send "inc #{JSON.stringify [n]}"				
+			send "inc", n
+			send "echo", [{object: {a: 1}},["a",1]]  
 			nextTick = setTimeout ticker, 1000
 		else
 			send "quit"
@@ -43,14 +44,15 @@ main = () ->
 			#log "stdout: " + data
 			buf += data
 			#log "buf: #{buf}"
-			if buf.match /^\*\* /
-				plog "aborting: #{buf}"
-				process.exit()
 			while m = buf.match /(.*?)\n([^]*)/m
 				line = m[1]
 				buf = m[2]
-				log "got #{m[1]} --- #{m[2]}"
-				if line.match /^~ /
+				#log "got #{m[1]} --- #{m[2]}"
+				if line.match /^\*\* /
+					log "r3error: #{line}#{buf}"
+					clearTimeout nextTick
+					#process.exit()
+				else if line.match /^~ /
 					if a = line.match /incremented (.*)/
 						log a[1]
 						j = JSON.parse(a[1])
@@ -69,9 +71,14 @@ main = () ->
 
 	plog "done"
 	
-send = (s) ->
-	log "-> #{s}"
-	ls.stdin.write "#{s}\n"
+send = (s, v) ->
+	if v
+		v = JSON.stringify v
+		log "-> #{s} #{v}"
+		ls.stdin.write "#{s} #{v}\n"
+	else
+		log "-> #{s}"
+		ls.stdin.write "#{s}\n"
 	
 plog = (o) ->
 	if o != undefined then log o
