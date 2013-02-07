@@ -206,6 +206,9 @@ to-json: use [
 
 		| into [some [tag! skip]] :here (change/only here copy first here) into object
 		| any-block! :here (change/only here copy first here) into block
+		;!!
+		;| object! :here (change/only here to-block first here) into object
+		;orig
 		| object! :here (change/only here third first here) into object
 
 		| any-type! (emits [type? here/1 "!"])

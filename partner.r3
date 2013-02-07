@@ -1,5 +1,5 @@
 rebol[]
-do %altjson.r
+
 buf: copy #{}
 if "main" = system/script/args [
 	print "as main"
@@ -14,6 +14,36 @@ send1: funct [cmd /args s][
 ]
 send: funct [cmd s][
 	send1/args cmd s
+]
+
+mold-were: funct [b] [
+	out: copy "["
+	unless block? b [b: reduce[b] single: true]
+	unless parse b rule: [
+		any[
+			p: [
+				object! (
+					append out "{^"object^":{"
+					foreach [w v] body-of p/1 [
+						repend out [{"} to-word w {":} mold-were v {,}]
+					]
+					remove back tail out
+					append out "}}"
+				)
+				| number! (append out p/1)
+				| string! (repend out [{"} p/1 {"}])
+				
+			]
+			(append out ",")
+		]
+	][
+		;probe system/catalog/errors/script
+		cause-error 'script 'invalid-arg reduce[p]
+	]
+	remove back tail out
+	either single[next out][append out "]"]
+
+
 ]
 
 do funct[][
@@ -32,9 +62,14 @@ do funct[][
 					"quit" [quit]
 					"echo" [send "echoing" line]
 					"inc" [
-						args: load-json args
-						args/1: args/1 + 1
-						send "incremented" to-json args
+						args: [1]
+
+						res: mold-were context[
+							r: args/1 + 1 
+							c: context[i: args/1]
+							b: reduce[r args/1 "Jo"]
+						]
+						send "incremented" res
 					]
 					"init" [send1 "dummy-init"]
 				][

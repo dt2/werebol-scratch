@@ -28,7 +28,7 @@ main = () ->
 	n = 0
 	process.nextTick ticker = task "ticker", () ->
 		++ n
-		if n < 3
+		if n <= 1
 			send "inc #{JSON.stringify [n]}"				
 			nextTick = setTimeout ticker, 1000
 		else
@@ -49,9 +49,14 @@ main = () ->
 			while m = buf.match /(.*?)\n([^]*)/m
 				line = m[1]
 				buf = m[2]
-				#log "got #{m[1]} --- #{m[2]}"
+				log "got #{m[1]} --- #{m[2]}"
 				if line.match /^~ /
-					log "#{line}"
+					if a = line.match /incremented (.*)/
+						log a[1]
+						j = JSON.parse(a[1])
+						log "json worked"
+					else
+						log "#{line}"
 				else
 					log "r3log: #{line}"
 			plog()		
