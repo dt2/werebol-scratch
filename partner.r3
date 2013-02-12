@@ -26,7 +26,7 @@ bite: funct [b] [
 		any[
 			p: [
 				object! (
-					append out "{^"object^":{"
+					append out "{^"o^":{"
 					foreach [w v] body-of p/1 [
 						repend out [{"} to-word w {":} bite v {,}]
 					]
@@ -87,7 +87,7 @@ chew-val: funct [v] [
 
 chew-map: funct [m /local _body][
 	either parse body-of m [
-		'object set _body skip (
+		'o set _body skip (
 			out: copy[]
 			foreach [key val] body-of _body [ repend out [to-set-word key chew-val val] ]
 		)
@@ -95,7 +95,7 @@ chew-map: funct [m /local _body][
 ]
 
 
-do funct[][
+main-loop: funct[][
 	forever [
 		wait system/ports/input
 		data: read system/ports/input
@@ -107,25 +107,37 @@ do funct[][
 				[copy cmd to " " skip copy args to end]
 				| [copy cmd to end]
 			] [
-				switch/default cmd [
-					"quit" [quit]
-					"echo" [send "echoing" mold chew args]
-					"inc" [
-						args: chew args
-						res: bite context[
-							r: args + 1 
-							c: context[i: args]
-						]
-						send "incremented" res
-					]
-					"init" [send1 "dummy-init"]
-				][
-					send "unknown-cmd" mold line
-				]
+				do-cmd cmd
 			][
 				send "unknown-format" mold line
 			]
 		]		
 	]
 ]
+
+do-cmd: funct[cmd][
+	switch/default cmd [
+		"quit" [print "r3 quitting" quit]
+		"echo" [print ["echoing" mold args] print [mold chew args]]
+		"init" [print "r3 starting"]
+	][
+		send "unknown-cmd" mold line
+	]
+]
+
+recon: funct["inline-console" b][
+	unless parse b [ any [p: '& copy cmd [to '& | to end] (
+			print [">> " mold cmd]
+			print ["==" mold/all do cmd]
+		)]
+	] [
+		print [mold p "'& missing?" ]
+	]
+]
+
+recon[
+	& source print
+]
+
+main-loop
 

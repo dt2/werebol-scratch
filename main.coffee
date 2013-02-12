@@ -1,8 +1,24 @@
 inBrowser = typeof window != "undefined"
 haveNode = typeof process != "undefined"
+haveNodekit = inBrowser && haveNode
 
+if not inBrowser && 1 # testmacromatic
+	bye = () ->
+		quitR3()
+	setTimeout bye, 1000
+	
 if haveNode
 	spawn = require('child_process').spawn
+
+if haveNodekit
+	console.error "IGNORE rendersandbox when in nodekit, not implemented"
+	gui = require 'nw.gui'
+	win = gui.Window.get()
+	quitR3 = null
+	win.on 'close', () ->
+		quitR3()
+		#alert "quitting rebol"
+		this.close true
 
 g_id = 0
 ls = null
@@ -24,22 +40,16 @@ main = () ->
 	ls = spawn "./r3", ["-cs","partner.r3"], {stdio: 'pipe'}
 
 	send "init"
+	send "echo", {o: {a: [1]}}
 
-	n = 0
-	process.nextTick ticker = task "ticker", () ->
-		++ n
-		if n <= 1
-			send "inc", n
-			send "echo", [{object: {a: 1}},["a",1]]  
-			nextTick = setTimeout ticker, 1000
-		else
-			send "quit"
-		plog()
-			
 	process.nextTick task "listen", () ->
 		
 		buf = ""
 		
+		quitR3 = callout () ->
+			send "quit"
+			plog()
+			
 		ls.stdout.on "data", callout (data) ->
 			#log "stdout: " + data
 			buf += data
@@ -60,7 +70,7 @@ main = () ->
 					else
 						log "#{line}"
 				else
-					log "r3log: #{line}"
+					r3log line
 			plog()		
 
 		ls.stderr.on "data", callout (data) ->
@@ -86,13 +96,24 @@ plog = (o) ->
 	header = "task: #{g.id}, #{g.name} @#{d}"
 	console.log header
 	console.log g.log
-	if inBrowser then $("#log").append "#{header}\n:#{g.log}\n"
+	logBrowser "#{header}\n#{JSON.stringify g.log}\n"
 	g.log = ["..."]
+	
+logBrowser = (s) ->
+	if inBrowser 
+		$("#log").append s
+		$("#log").prop "scrollTop", $("#log").prop "scrollHeight"
+
 
 log = (o) ->
 	g.log.push o
 	o
 	
+r3log = (o) ->
+	o = "r3log: #{o}"
+	console.log o
+	logBrowser "#{o}\n"
+
 callout = (f, go = g) ->
 	f.g = go
 	(args...) ->
@@ -110,10 +131,12 @@ callout = (f, go = g) ->
 task = (name,f) ->
 	callout f, new G(name)
 	
-			
+
+
+	
 #last!
-do task "main", () ->
-	if inBrowser then Zepto main else do main
+if inBrowser then Zepto task "main",main else do task "main",main
+
 		
 		
 
