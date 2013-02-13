@@ -36,8 +36,9 @@ g = null
 main = () ->
 	log "Have #{ if haveNode then "nodejs" else "no nodejs" }"
 
+	d = "#{__dirname}/.."
 	log "spawning"	
-	ls = spawn "./r3", ["-cs","partner.r3"], {stdio: 'pipe'}
+	ls = spawn "#{d}/r3", ["-cs","#{d}/partner.r3"], {stdio: 'pipe'}
 
 	send "init"
 	send "echo", {o: {a: [1]}}
