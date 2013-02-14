@@ -10,7 +10,7 @@ error: funct["hack. use to show error, then crash to mark source" msg][
 
 send1: funct [cmd /args s][
 	either args [
-		print ["~" cmd s]
+		print ["~" cmd bite s]
 	][
 		print ["~" cmd]
 	]
@@ -136,7 +136,7 @@ recon: funct["inline-console" b][
 ]
 
 recon[
-	& source print
+	
 ]
 
 main-loop

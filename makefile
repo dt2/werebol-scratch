@@ -1,4 +1,4 @@
-all: coffee run-no
+all: coffee run-nk
 
 run-nk:
 	#echo $(pkill -9 r3 && pgrep r3)

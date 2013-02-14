@@ -17,8 +17,9 @@ if haveNodekit
 	quitR3 = null
 	win.on 'close', () ->
 		quitR3()
-		#alert "quitting rebol"
 		this.close true
+		
+dir = if haveNodekit then "#{process.cwd()}/coffee" else __dirname
 
 g_id = 0
 ls = null
@@ -34,15 +35,14 @@ G = (name) ->
 g = null
 
 main = () ->
-	log "Have #{ if haveNode then "nodejs" else "no nodejs" }"
+	plog "dir #{dir} exe #{process.execPath}"
 
-	d = "#{__dirname}/.."
+	d = "#{dir}/.."
 	log "spawning"	
 	ls = spawn "#{d}/r3", ["-cs","#{d}/partner.r3"], {stdio: 'pipe'}
 
 	send "init"
-	send "echo", {o: {a: [1]}}
-
+	
 	process.nextTick task "listen", () ->
 		
 		buf = ""
@@ -64,12 +64,16 @@ main = () ->
 					clearTimeout nextTick
 					#process.exit()
 				else if line.match /^~ /
-					if a = line.match /incremented (.*)/
-						log a[1]
-						j = JSON.parse(a[1])
-						log "json worked"
-					else
-						log "#{line}"
+					plog "< #{line}"
+					if a = line.match /^~ (\w*) (.*)/
+						cmd = a[1]
+						args = a[2]
+						args = JSON.parse args if args
+						handle cmd, args
+					else 
+						a = line.match /^~ (.*)/
+						cmd = a[1]
+						handle cmd
 				else
 					r3log line
 			plog()		
@@ -122,6 +126,7 @@ callout = (f, go = g) ->
 			throw new Exception "task runs in task!"
 		g = f.g
 		try f args... catch e
+			console.log "callout failed:"
 			console.log e.stack
 			log e
 			plog()
@@ -132,7 +137,11 @@ callout = (f, go = g) ->
 task = (name,f) ->
 	callout f, new G(name)
 	
-
+handle = (cmd, args) ->
+	plog "#{cmd} -:- #{args}"
+	# switch cmd
+	# 	when "info" then log "#{args[0]} #{args[2]}"
+	plog()
 
 	
 #last!
