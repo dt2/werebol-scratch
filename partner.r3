@@ -8,15 +8,15 @@ error: funct["hack. use to show error, then crash to mark source" msg][
 	print remold/all msg
 ]
 
-send1: funct [cmd /args s][
+send1: funct ['cmd /args s][
 	either args [
 		print ["~" cmd bite s]
 	][
 		print ["~" cmd]
 	]
 ]
-send: funct [cmd s][
-	send1/args cmd s
+send: funct ['cmd s][
+	send1/args :cmd s
 ]
 
 bite: funct [b] [
@@ -40,7 +40,7 @@ bite: funct [b] [
 			(append out ",")
 		]
 	][
-		error ["biting not yet implemented at" p] crash
+		error ["biting of " type? p/1 "not yet implemented at" p] crash
 	]
 	remove back tail out
 	either single[next out][append out "]"]
@@ -109,7 +109,7 @@ main-loop: funct[][
 			] [
 				do-cmd cmd
 			][
-				send "unknown-format" mold line
+				send unknown-format mold line
 			]
 		]		
 	]
@@ -119,7 +119,10 @@ do-cmd: funct[cmd][
 	switch/default cmd [
 		"quit" [print "r3 quitting" quit]
 		"echo" [print ["echoing" mold args] print [mold chew args]]
-		"init" [print "r3 starting"]
+		"init" [
+			print "r3 starting"
+			send set-html reduce ["rebspace" ajoin[<b>"Hello"</b>]]
+		]
 	][
 		send "unknown-cmd" mold line
 	]

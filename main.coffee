@@ -64,8 +64,8 @@ main = () ->
 					clearTimeout nextTick
 					#process.exit()
 				else if line.match /^~ /
-					plog "< #{line}"
-					if a = line.match /^~ (\w*) (.*)/
+					#plog "< #{line}"
+					if a = line.match /^~ (\S*) (.*)/
 						cmd = a[1]
 						args = a[2]
 						args = JSON.parse args if args
@@ -138,9 +138,10 @@ task = (name,f) ->
 	callout f, new G(name)
 	
 handle = (cmd, args) ->
-	plog "#{cmd} -:- #{args}"
-	# switch cmd
-	# 	when "info" then log "#{args[0]} #{args[2]}"
+	log "#{cmd} -:- #{JSON.stringify args}"
+	switch cmd
+	 	when "set-html" then $("##{args[0]}").html args[1]
+
 	plog()
 
 	
