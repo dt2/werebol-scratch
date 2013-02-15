@@ -34,7 +34,7 @@ bite: funct [b] [
 					append out "}}"
 				)
 				| number! (append out p/1)
-				| string! (repend out [{"} p/1 {"}])
+				| string! (repend out [{"} encode-js p/1 {"}])
 				
 			]
 			(append out ",")
@@ -44,6 +44,14 @@ bite: funct [b] [
 	]
 	remove back tail out
 	either single[next out][append out "]"]
+]
+
+encode-js: funct[s] [
+	parse s: copy s [any [ 
+		change {"} {\"}
+		| change {\} {\\}
+		| skip]]
+	s
 ]
 
 load-node: funct [s /local _n _s _key _map] [
@@ -103,11 +111,13 @@ main-loop: funct[][
 		while [parse buf [copy line to "^/" skip copy buf to end]] [
 			line: to string! line
 			;print ["got" line]
+			cmd: args: none
 			if parse line [
-				[copy cmd to " " skip copy args to end]
+				[copy cmd to " " skip copy args to end 
+					(args: chew args)]
 				| [copy cmd to end]
 			] [
-				do-cmd cmd
+				do-cmd cmd args line
 			][
 				send unknown-format mold line
 			]
@@ -115,16 +125,26 @@ main-loop: funct[][
 	]
 ]
 
-do-cmd: funct[cmd][
+do-cmd: funct[cmd args line][
+	;probe reduce['> cmd args]
 	switch/default cmd [
 		"quit" [print "r3 quitting" quit]
 		"echo" [print ["echoing" mold args] print [mold chew args]]
 		"init" [
 			print "r3 starting"
-			send set-html reduce ["rebspace" ajoin[<b>"Hello"</b>]]
+			send set-html reduce ["rebspace" ajoin[
+				<span id="out">mold now</span><br>
+				{<button onclick="r3.send('clicked','button')">}
+				"button"
+				</button><br>
+				{chartest: " \ }<br>
+			]]
+		]
+		"clicked" [
+			send set-html reduce ["out" join "clicked " now]
 		]
 	][
-		send "unknown-cmd" mold line
+		send "unknown-cmd" line
 	]
 ]
 

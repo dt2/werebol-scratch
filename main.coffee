@@ -89,14 +89,15 @@ main = () ->
 send = (s, v) ->
 	if v
 		v = JSON.stringify v
-		log "-> #{s} #{v}"
+		#log "-> #{s} #{v}"
 		ls.stdin.write "#{s} #{v}\n"
 	else
-		log "-> #{s}"
+		#log "-> #{s}"
 		ls.stdin.write "#{s}\n"
 	
 plog = (o) ->
 	if o != undefined then log o
+	return if g.log.length == 1 && g.log[0] == "..."
 	d = new Date()
 	header = "task: #{g.id}, #{g.name} @#{d}"
 	console.log header
@@ -105,10 +106,10 @@ plog = (o) ->
 	g.log = ["..."]
 	
 logBrowser = (s) ->
-	if inBrowser 
+	if inBrowser
+		s = $('<div/>').text(s).html()
 		$("#log").append s
 		$("#log").prop "scrollTop", $("#log").prop "scrollHeight"
-
 
 log = (o) ->
 	g.log.push o
@@ -138,7 +139,7 @@ task = (name,f) ->
 	callout f, new G(name)
 	
 handle = (cmd, args) ->
-	log "#{cmd} -:- #{JSON.stringify args}"
+	#log "#{cmd} -:- #{JSON.stringify args}"
 	switch cmd
 	 	when "set-html" then $("##{args[0]}").html args[1]
 
@@ -146,7 +147,16 @@ handle = (cmd, args) ->
 
 	
 #last!
-if inBrowser then Zepto task "main",main else do task "main",main
+do task ">r3", () ->
+	window.r3 = {}
+	window.r3.send = callout (cmd, args) ->
+		#plog ">r3: #{cmd} #{JSON.stringify args}"
+		send cmd, args
+
+if inBrowser 
+	Zepto task "main",main
+else 
+	do task "main",main
 
 		
 		
