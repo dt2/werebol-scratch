@@ -20,11 +20,11 @@ send: funct ['cmd s][
 ]
 
 bite: funct [b] [
-	out: copy "["
-	unless block? b [b: reduce[b] single: true]
+	out: copy ""
+	b: reduce[b]
 	unless parse b rule: [
 		any[
-			p: [
+			p: [ 
 				object! (
 					append out "{^"o^":{"
 					foreach [w v] body-of p/1 [
@@ -36,16 +36,16 @@ bite: funct [b] [
 				| number! (append out p/1)
 				| string! (repend out [{"} encode-jstring p/1 {"}])
 				| word! (repend out ["{^"w^":^"" p/1 "^"}"])
-				| block! (repend out bite p/1)
+				| and block! (append out "[") into rule (append out "]")
 				
 			]
 			(append out ",")
 		]
+		(remove back tail out)
 	][
 		error ["biting of " type? p/1 "not yet implemented at" p] crash
 	]
-	remove back tail out
-	either single[next out][append out "]"]
+	out
 ]
 
 encode-jstring: funct[s] [
@@ -117,7 +117,7 @@ main-loop: funct[][
 		append buf data
 		while [parse buf [copy line to "^/" skip copy buf to end]] [
 			line: to string! line
-			;print ["got" line]
+			?? line
 			cmd: args: none
 			if parse line [
 				[copy cmd to " " skip copy args to end 
@@ -133,7 +133,6 @@ main-loop: funct[][
 ]
 
 do-cmd: funct[cmd args line][
-	;probe reduce['> cmd args]
 	switch/default cmd [
 		"quit" [print "r3 quitting" quit]
 		"echo" [print ["echoing" mold args] print [mold chew args]]
@@ -141,16 +140,21 @@ do-cmd: funct[cmd args line][
 			print "r3 starting"
 			send set-html reduce ["rebspace" ajoin[
 				<span id="out">mold now</span><br>
-				<input type="text" id="line" value="123">
-				<button id="button">"button"</button><br>
-				{chartest: " \  < }<br>
+				<input type="text" id="line-1" value="123">
+				<br><input type="text" id="line-2" value="234">
+				<button id="add">"+"</button>
+				<br>"result: "<span id="res">"---"</span>
+				<p>{chartest: " \  < }<br>
 			]]
-			send on-click reduce["button" 1234 ["line"]]
+			send on-click reduce["add" 'add ["line-1" "line-2"]]
 		]
 		"clicked" [
 			print "clicked" probe args
-			r: reduce ["out" remold ["clicked" now args]]
-			send set-html r
+			send set-html reduce[ "res"
+				mold try[
+					add  load args/2/line-1  load args/2/line-2
+				]
+			]
 		]
 	][
 		send "unknown-cmd" line

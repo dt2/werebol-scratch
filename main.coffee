@@ -116,7 +116,7 @@ log = (o) ->
 	o
 	
 r3log = (o) ->
-	o = "r3log: #{o}"
+	o = "r3log: #{o}  @#{new Date()}"
 	console.log o
 	logBrowser "#{o}\n"
 
@@ -145,9 +145,11 @@ handle = (cmd, args) ->
 		when "set-html" then $("##{args[0]}").html args[1]
 		when "on-click"
 			$("##{args[0]}").on 'click', callout (e) ->
+				contents = {}				
+				contents[e] = $("##{e}").val() for e in args[2]
 				res = [
 					[args[0], args[1]],
-					[[e, $("##{e}").val()] for e in args[2]]
+					o: contents
 				]
 				send "clicked", res
 
