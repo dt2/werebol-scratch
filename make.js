@@ -5,6 +5,6 @@ console.log( "making"	);
 var ls = spawn( "make", ["coffee"], { stdio: 'inherit', cwd: __dirname });
 ls.on('exit', function (code) {
   console.log('make res: ' + code);
+  require("./coffee/main.js");
 });
-require("./coffee/main.js");
 
