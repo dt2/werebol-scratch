@@ -34,8 +34,9 @@ bite: funct [b] [
 					append out "}}"
 				)
 				| number! (append out p/1)
-				| string! (repend out [{"} encode-js p/1 {"}])
+				| string! (repend out [{"} encode-jstring p/1 {"}])
 				| word! (repend out ["{^"w^":^"" p/1 "^"}"])
+				| block! (repend out bite p/1)
 				
 			]
 			(append out ",")
@@ -47,10 +48,11 @@ bite: funct [b] [
 	either single[next out][append out "]"]
 ]
 
-encode-js: funct[s] [
+encode-jstring: funct[s] [
 	parse s: copy s [any [ 
 		change {"} {\"}
 		| change {\} {\\}
+		| change {^/} {\n}
 		| skip]]
 	s
 ]
@@ -137,17 +139,18 @@ do-cmd: funct[cmd args line][
 		"echo" [print ["echoing" mold args] print [mold chew args]]
 		"init" [
 			print "r3 starting"
-			probe chew probe bite reduce[context[b: 1] "Hi" 'a]
 			send set-html reduce ["rebspace" ajoin[
 				<span id="out">mold now</span><br>
-				{<button onclick="r3.send('clicked','button')">}
-				"button"
-				</button><br>
-				{chartest: " \ }<br>
+				<input type="text" id="line" value="123">
+				<button id="button">"button"</button><br>
+				{chartest: " \  < }<br>
 			]]
+			send on-click reduce["button" 1234 ["line"]]
 		]
 		"clicked" [
-			send set-html reduce ["out" join "clicked " now]
+			print "clicked" probe args
+			r: reduce ["out" remold ["clicked" now args]]
+			send set-html r
 		]
 	][
 		send "unknown-cmd" line
@@ -165,7 +168,6 @@ recon: funct["inline-console" b][
 ]
 
 recon[
-	
 ]
 
 main-loop

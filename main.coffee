@@ -127,7 +127,8 @@ callout = (f, go = g) ->
 			throw new Exception "task runs in task!"
 		g = f.g
 		try f args... catch e
-			console.log "callout failed:"
+			header = "task: #{g.id}, #{g.name}"
+			console.log "callout failed [#{header}]:"
 			console.log e.stack
 			log e
 			plog()
@@ -141,7 +142,14 @@ task = (name,f) ->
 handle = (cmd, args) ->
 	#log "#{cmd} -:- #{JSON.stringify args}"
 	switch cmd
-	 	when "set-html" then $("##{args[0]}").html args[1]
+		when "set-html" then $("##{args[0]}").html args[1]
+		when "on-click"
+			$("##{args[0]}").on 'click', callout (e) ->
+				res = [
+					[args[0], args[1]],
+					[[e, $("##{e}").val()] for e in args[2]]
+				]
+				send "clicked", res
 
 	plog()
 
