@@ -35,6 +35,7 @@ bite: funct [b] [
 				)
 				| number! (append out p/1)
 				| string! (repend out [{"} encode-js p/1 {"}])
+				| word! (repend out ["{^"w^":^"" p/1 "^"}"])
 				
 			]
 			(append out ",")
@@ -87,8 +88,9 @@ chew: funct [s /local] [
 
 chew-val: funct [v] [
 	parse v: reduce[v] rule: [ any[
-		number! | string! | into rule
+		number! | string! 
 		| p: map! (p/1: chew-map p/1)
+		| and block! into rule
 	]]
 	v/1
 ]
@@ -97,9 +99,12 @@ chew-map: funct [m /local _body][
 	either parse body-of m [
 		'o set _body skip (
 			out: copy[]
-			foreach [key val] body-of _body [ repend out [to-set-word key chew-val val] ]
+			foreach [key val] body-of _body [ 
+			  repend out [to-set-word key chew-val val] ]
+			val: construct out
 		)
-	][construct out][error ["untyped map" m] 1 / 0]
+		| 'w set _body string! (val: to-word _body)
+	][val][error ["untyped map" m] crash]
 ]
 
 
@@ -132,6 +137,7 @@ do-cmd: funct[cmd args line][
 		"echo" [print ["echoing" mold args] print [mold chew args]]
 		"init" [
 			print "r3 starting"
+			probe chew probe bite reduce[context[b: 1] "Hi" 'a]
 			send set-html reduce ["rebspace" ajoin[
 				<span id="out">mold now</span><br>
 				{<button onclick="r3.send('clicked','button')">}
