@@ -1,4 +1,7 @@
 werebol-scratch
 ===============
 
-werebol - part human, part javascript (node, webkit, rebol)
+werebol - part human, part javascript (rebol, node, webkit)
+
+Use with https://github.com/rogerwang/node-webkit , see nodekit.sh to run.
+Testet on Ubuntu 12.04
