@@ -19,7 +19,7 @@ if haveNodekit
 		quitR3()
 		this.close true
 		
-dir = if haveNodekit then "#{process.cwd()}/coffee" else __dirname
+dir = null
 
 g_id = 0
 ls = null
@@ -35,11 +35,21 @@ G = (name) ->
 g = null
 
 main = () ->
-	plog "dir #{dir} exe #{process.execPath}"
+	
+	switch process.platform
+		when "linux"
+			dir = if haveNodekit then "#{process.cwd()}/coffee" else __dirname
+			d = "#{dir}/.."		
+			ls = spawn "#{d}/r3", ["-cs","#{d}/partner.r3"], {stdio: 'pipe'}
+		when "win32"
+			#does not work on wine
+			dir = if haveNodekit then "#{process.cwd()}\\coffee" else __dirname
+			d = "#{dir}\\.."		
+			ls = spawn "#{d}\\r3.exe", ["-cs","#{d}\\partner.r3"], {stdio: 'pipe'}
 
-	d = "#{dir}/.."
+	plog "@#{process.platform} dir #{dir} exe #{process.execPath}"
+
 	log "spawning"	
-	ls = spawn "#{d}/r3", ["-cs","#{d}/partner.r3"], {stdio: 'pipe'}
 
 	send "init"
 	
