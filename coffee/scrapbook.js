@@ -1,5 +1,5 @@
 (function() {
 
-  console.log([]);
+  console.log([process.platform]);
 
 }).call(this);

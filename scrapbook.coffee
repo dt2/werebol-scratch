@@ -1,2 +1,3 @@
 console.log [
+	process.platform
 ]
