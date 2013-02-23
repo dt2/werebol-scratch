@@ -2,4 +2,4 @@
 *.log
 
 coffee/
-node-webkit-v*/
+node-webkit-v*

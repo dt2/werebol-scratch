@@ -162,8 +162,8 @@ do-cmd: funct[cmd args line][
 ]
 
 recon: funct["inline-console" b][
-	unless parse b [ any [p: '& copy cmd [to '& | to end] (
-			print [">> " mold cmd]
+	unless parse b [ any [p: '>> copy cmd [to '>> | to end] (
+			print [">> " mold/only cmd]
 			print ["==" mold/all do cmd]
 		)]
 	] [
@@ -172,6 +172,8 @@ recon: funct["inline-console" b][
 ]
 
 recon[
+	>> "tests"
+	>> "tests done"
 ]
 
 main-loop
