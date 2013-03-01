@@ -48,11 +48,26 @@ bite: funct [b] [
 	out
 ]
 
-r2j-chars: [
-	{"} {\"}
-	{\} {\\}
-	{^/} {\n}
+; http://www.ietf.org/rfc/rfc4627.txt
+; http://www.rebol.com/r3/docs/datatypes/char.html
+
+r2j-chars: copy""
+parse {
+                  %x22 /          ; "    quotation mark  U+0022
+                    %x5C /          ; \    reverse solidus U+005C
+                    %x2F /          ; /    solidus         U+002F
+                    %x62 /          ; b    backspace       U+0008
+                    %x66 /          ; f    form feed       U+000C
+                    %x6E /          ; n    line feed       U+000A
+                    %x72 /          ; r    carriage return U+000D
+                    %x74 /          ; t    tab             U+0009
+} [
+	any [
+		thru "; " copy _esc skip thru "U+" 2 skip copy _asc 2 skip
+		(repend r2j-chars [ "{^^(" _asc ")} {\" _esc "} " ])
+	]
 ]
+r2j-chars: load r2j-chars
 
 r2j-char: copy[]
 foreach [r j] r2j-chars [
@@ -68,7 +83,7 @@ append j2r-char 'skip
 
 encode-jstring: funct[s] [
 	parse s: copy s [any r2j-char]
-	?? s
+	s
 ]
 
 decode-jstring: func[s] [
@@ -77,7 +92,7 @@ decode-jstring: func[s] [
 ]
 
 load-node: funct [s /local _n _s _key _map] [
-	innumber: charset "0123456789.e"
+	innumber: charset "0123456789.e-"
 	number: [copy _n some innumber (append out load _n)]
 	instring: complement charset {"\}
 	string: [ {"} copy _s any [ instring | "\" skip] {"} (append out decode-jstring _s)]
