@@ -48,12 +48,31 @@ bite: funct [b] [
 	out
 ]
 
+r2j-chars: [
+	{"} {\"}
+	{\} {\\}
+	{^/} {\n}
+]
+
+r2j-char: copy[]
+foreach [r j] r2j-chars [
+	repend r2j-char ['change r j '|]
+]
+append r2j-char 'skip
+
+j2r-char: copy[]
+foreach [r j] r2j-chars [
+	repend j2r-char ['change j r '|]
+]
+append j2r-char 'skip
+
 encode-jstring: funct[s] [
-	parse s: copy s [any [ 
-		change {"} {\"}
-		| change {\} {\\}
-		| change {^/} {\n}
-		| skip]]
+	parse s: copy s [any r2j-char]
+	?? s
+]
+
+decode-jstring: func[s] [
+	parse s: copy s [any [ j2r-char | skip ]]
 	s
 ]
 
@@ -61,7 +80,7 @@ load-node: funct [s /local _n _s _key _map] [
 	innumber: charset "0123456789.e"
 	number: [copy _n some innumber (append out load _n)]
 	instring: complement charset {"\}
-	string: [ {"} copy _s any [ instring | "\" skip] {"} (append out _s)]
+	string: [ {"} copy _s any [ instring | "\" skip] {"} (append out decode-jstring _s)]
 	val: [
 		p: 
 		number
@@ -117,7 +136,7 @@ main-loop: funct[][
 		append buf data
 		while [parse buf [copy line to "^/" skip copy buf to end]] [
 			line: to string! line
-			?? line
+			;?? line
 			cmd: args: none
 			if parse line [
 				[copy cmd to " " skip copy args to end 
@@ -149,7 +168,7 @@ do-cmd: funct[cmd args line][
 			send on-click reduce["add" 'add ["line-1" "line-2"]]
 		]
 		"clicked" [
-			print "clicked" probe args
+			;print "clicked" probe args
 			send set-html reduce[ "res"
 				mold try[
 					add  load args/2/line-1  load args/2/line-2
