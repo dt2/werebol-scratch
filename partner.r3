@@ -87,7 +87,7 @@ encode-jstring: funct[s] [
 ]
 
 decode-jstring: func[s] [
-	parse s: copy s [any [ j2r-char | skip ]]
+	parse s: copy s [any j2r-char]
 	s
 ]
 
