@@ -71,6 +71,7 @@
       buf = "";
       quitR3 = callout(function() {
         send("quit");
+        ls.stdin.end();
         return plog();
       });
       ls.stdout.on("data", callout(function(data) {

@@ -42,7 +42,7 @@ main = () ->
 			d = "#{dir}/.."		
 			ls = spawn "#{d}/r3", ["-cs","#{d}/partner.r3"], {stdio: 'pipe'}
 		when "win32"
-			#does not work on wine
+			#pipe does not work on wine
 			dir = if haveNodekit then "#{process.cwd()}\\coffee" else __dirname
 			d = "#{dir}\\.."		
 			ls = spawn "#{d}\\r3.exe", ["-cs","#{d}\\partner.r3"], {stdio: 'pipe'}
@@ -59,6 +59,7 @@ main = () ->
 		
 		quitR3 = callout () ->
 			send "quit"
+			ls.stdin.end()
 			plog()
 			
 		ls.stdout.on "data", callout (data) ->

@@ -110,7 +110,8 @@ load-node: funct [s /local _n _s _key _map] [
 	]
 	_map: [
 		"{" (insert/only stack out   out: copy [])
-		any[ opt "," {"} copy _key to {":} {":} (append out to-word _key) val]
+		any[ opt "," {"} copy _key to {":} {":} 
+			(append out to-word  decode-jstring _key) val]
 		"}" (parent: take stack   append/only parent map out   out: parent)
 	]
 	out: copy[]
