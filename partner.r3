@@ -21,7 +21,7 @@ send: funct ['cmd s][
 
 bite: funct [b] [
 	out: copy ""
-	b: reduce[b]
+	if no-block: not block? b [b: reduce[b]]
 	unless parse b rule: [
 		any[
 			p: [ 
@@ -36,8 +36,7 @@ bite: funct [b] [
 				| number! (append out p/1)
 				| string! (repend out [{"} encode-jstring p/1 {"}])
 				| word! (repend out ["{^"w^":^"" p/1 "^"}"])
-				| and block! (append out "[") into rule (append out "]")
-				
+				| block! (append out bite p/1)	
 			]
 			(append out ",")
 		]
@@ -45,7 +44,7 @@ bite: funct [b] [
 	][
 		error ["biting of " type? p/1 "not yet implemented at" p] crash
 	]
-	out
+	either no-block [out][ajoin ["[" out "]"]]
 ]
 
 ; http://www.ietf.org/rfc/rfc4627.txt
@@ -173,6 +172,8 @@ do-cmd: funct[cmd args line][
 		"echo" [print ["echoing" mold args] print [mold chew args]]
 		"init" [
 			print "r3 starting"
+			/do [recon[
+			] exit ]
 			send set-html reduce ["rebspace" ajoin[
 				<span id="out">mold now</span><br>
 				<input type="text" id="line-1" value="123">
@@ -182,6 +183,8 @@ do-cmd: funct[cmd args line][
 				<p>{chartest: " \  < }<br>
 			]]
 			send on-click reduce["add" 'add ["line-1" "line-2"]]
+			
+			;send call [ "ls" [] ]
 		]
 		"clicked" [
 			;print "clicked" probe args
@@ -197,7 +200,7 @@ do-cmd: funct[cmd args line][
 ]
 
 recon: funct["inline-console" b][
-	unless parse b [ any [p: '>> copy cmd [to '>> | to end] (
+	unless parse b [ any [p: end | opt '>> copy cmd [to '>> | to end] (
 			print [">> " mold/only cmd]
 			print ["==" mold/all do cmd]
 		)]
@@ -206,10 +209,7 @@ recon: funct["inline-console" b][
 	]
 ]
 
-recon[
-	>> "tests"
-	>> "tests done"
-]
+
 
 main-loop
 

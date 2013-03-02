@@ -21,6 +21,8 @@ if haveNodekit
 		
 dir = null
 
+child = null
+
 g_id = 0
 ls = null
 nextTick = null
@@ -75,7 +77,7 @@ main = () ->
 					clearTimeout nextTick
 					#process.exit()
 				else if line.match /^~ /
-					#plog "< #{line}"
+					plog "< #{line}"
 					if a = line.match /^~ (\S*) (.*)/
 						cmd = a[1]
 						args = a[2]
@@ -163,6 +165,13 @@ handle = (cmd, args) ->
 					o: contents
 				]
 				send "clicked", res
+		when "call"
+			[path, args] = args
+			child = spawn path, args, {stdio: 'pipe'}
+			ls = child
+			ls.on "exit", callout (code) ->
+				send "call-reply", [{w: "exit"}, code]
+				child = null
 
 	plog()
 

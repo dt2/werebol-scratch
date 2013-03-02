@@ -1,5 +1,5 @@
 (function() {
-  var G, bye, callout, dir, g, g_id, gui, handle, haveNode, haveNodekit, inBrowser, log, logBrowser, ls, main, nextTick, plog, quitR3, r3log, send, spawn, task, win,
+  var G, bye, callout, child, dir, g, g_id, gui, handle, haveNode, haveNodekit, inBrowser, log, logBrowser, ls, main, nextTick, plog, quitR3, r3log, send, spawn, task, win,
     __slice = Array.prototype.slice;
 
   inBrowser = typeof window !== "undefined";
@@ -29,6 +29,8 @@
   }
 
   dir = null;
+
+  child = null;
 
   g_id = 0;
 
@@ -84,6 +86,7 @@
             log("r3error: " + line + buf);
             clearTimeout(nextTick);
           } else if (line.match(/^~ /)) {
+            plog("< " + line);
             if (a = line.match(/^~ (\S*) (.*)/)) {
               cmd = a[1];
               args = a[2];
@@ -178,6 +181,7 @@
   };
 
   handle = function(cmd, args) {
+    var path, _ref;
     switch (cmd) {
       case "set-html":
         $("#" + args[0]).html(args[1]);
@@ -197,6 +201,21 @@
             }
           ];
           return send("clicked", res);
+        }));
+        break;
+      case "call":
+        _ref = args, path = _ref[0], args = _ref[1];
+        child = spawn(path, args, {
+          stdio: 'pipe'
+        });
+        ls = child;
+        ls.on("exit", callout(function(code) {
+          send("call-reply", [
+            {
+              w: "exit"
+            }, code
+          ]);
+          return child = null;
         }));
     }
     return plog();
