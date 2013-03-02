@@ -68,7 +68,7 @@
     plog("@" + process.platform + " dir " + dir + " exe " + process.execPath);
     log("spawning");
     send("init");
-    process.nextTick(task("listen", function() {
+    task("listen", function() {
       var buf;
       buf = "";
       quitR3 = callout(function() {
@@ -109,12 +109,12 @@
       return ls.on("exit", callout(function(code) {
         return plog("child done res: " + code);
       }));
-    }));
+    });
     return plog("done");
   };
 
   send = function(s, v) {
-    if (v) {
+    if (v !== void 0) {
       v = JSON.stringify(v);
       return ls.stdin.write("" + s + " " + v + "\n");
     } else {
@@ -177,11 +177,10 @@
   };
 
   task = function(name, f) {
-    return callout(f, new G(name));
+    return process.nextTick(callout(f, new G(name)));
   };
 
   handle = function(cmd, args) {
-    var path, _ref;
     switch (cmd) {
       case "set-html":
         $("#" + args[0]).html(args[1]);
@@ -204,34 +203,45 @@
         }));
         break;
       case "call":
-        _ref = args, path = _ref[0], args = _ref[1];
-        child = spawn(path, args, {
-          stdio: 'pipe'
+        task("call", function() {
+          var path, _ref;
+          log(args);
+          _ref = args, path = _ref[0], args = _ref[1];
+          child = spawn(path, args, {
+            stdio: 'pipe'
+          });
+          child.on("exit", callout(function(code) {
+            return send("call.exit", code);
+          }));
+          child.on("close", callout(function(code) {
+            return send("call.close", code);
+          }));
+          child.stdout.on("data", callout(function(data) {
+            data = "" + data;
+            return send("call.data", data);
+          }));
+          child.stderr.on("data", callout(function(data) {
+            data = "" + data;
+            return send("call.error", data);
+          }));
+          return plog();
         });
-        ls = child;
-        ls.on("exit", callout(function(code) {
-          send("call-reply", [
-            {
-              w: "exit"
-            }, code
-          ]);
-          return child = null;
-        }));
     }
     return plog();
   };
 
-  task(">r3", function() {
-    window.r3 = {};
-    return window.r3.send = callout(function(cmd, args) {
-      return send(cmd, args);
+  task("main", function() {
+    if (inBrowser) {
+      Zepto(main);
+    } else {
+      main();
+    }
+    return task(">r3", function() {
+      window.r3 = {};
+      return window.r3.send = callout(function(cmd, args) {
+        return send(cmd, args);
+      });
     });
-  })();
-
-  if (inBrowser) {
-    Zepto(task("main", main));
-  } else {
-    task("main", main)();
-  }
+  });
 
 }).call(this);

@@ -151,7 +151,7 @@ main-loop: funct[][
 		append buf data
 		while [parse buf [copy line to "^/" skip copy buf to end]] [
 			line: to string! line
-			;?? line
+			?? line
 			cmd: args: none
 			if parse line [
 				[copy cmd to " " skip copy args to end 
@@ -167,10 +167,10 @@ main-loop: funct[][
 ]
 
 do-cmd: funct[cmd args line][
-	switch/default cmd [
-		"quit" [print "r3 quitting" quit]
-		"echo" [print ["echoing" mold args] print [mold chew args]]
-		"init" [
+	switch/default to-word cmd [
+		quit [print "r3 quitting" quit]
+		echo [print ["echoing" mold args] print [mold chew args]]
+		init [
 			print "r3 starting"
 			/do [recon[
 			] exit ]
@@ -184,15 +184,28 @@ do-cmd: funct[cmd args line][
 			]]
 			send on-click reduce["add" 'add ["line-1" "line-2"]]
 			
-			;send call [ "ls" [] ]
+			send call [ "pwd" [] ]
+			send call [ "ls" [] ]			
 		]
-		"clicked" [
+		clicked [
 			;print "clicked" probe args
 			send set-html reduce[ "res"
 				mold try[
 					add  load args/2/line-1  load args/2/line-2
 				]
 			]
+		]
+		call.exit [
+			?? args
+		]
+		call.close [
+			?? args
+		]
+		call.data [
+			?? args
+		]
+		call.error [
+			?? args
 		]
 	][
 		send "unknown-cmd" line

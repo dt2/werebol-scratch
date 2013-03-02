@@ -55,7 +55,7 @@ main = () ->
 
 	send "init"
 	
-	process.nextTick task "listen", () ->
+	task "listen", () ->
 		
 		buf = ""
 		
@@ -100,7 +100,7 @@ main = () ->
 	plog "done"
 	
 send = (s, v) ->
-	if v
+	if v != undefined
 		v = JSON.stringify v
 		#log "-> #{s} #{v}"
 		ls.stdin.write "#{s} #{v}\n"
@@ -150,7 +150,7 @@ callout = (f, go = g) ->
 		g = null
 		
 task = (name,f) ->
-	callout f, new G(name)
+	process.nextTick callout f, new G(name)
 	
 handle = (cmd, args) ->
 	#log "#{cmd} -:- #{JSON.stringify args}"
@@ -166,27 +166,39 @@ handle = (cmd, args) ->
 				]
 				send "clicked", res
 		when "call"
-			[path, args] = args
-			child = spawn path, args, {stdio: 'pipe'}
-			ls = child
-			ls.on "exit", callout (code) ->
-				send "call-reply", [{w: "exit"}, code]
-				child = null
-
+			task "call", () ->
+				log args
+				[path, args] = args
+				child = spawn path, args, {stdio: 'pipe'}
+				child.on "exit", callout (code) ->
+					send "call.exit", code
+					#plog "exit"
+				child.on "close", callout (code) ->
+					send "call.close", code
+					#plog "close"
+				child.stdout.on "data", callout (data) ->
+					data = "" + data
+					send "call.data", data
+					#plog "" + data
+				child.stderr.on "data", callout (data) ->
+					data = "" + data
+					send "call.error", data
+					#plog data
+				plog()
 	plog()
 
 	
-#last!
-do task ">r3", () ->
-	window.r3 = {}
-	window.r3.send = callout (cmd, args) ->
-		#plog ">r3: #{cmd} #{JSON.stringify args}"
-		send cmd, args
+task "main", () ->
+	if inBrowser 
+		Zepto main
+	else 
+		do main
+	task ">r3", () ->
+		window.r3 = {}
+		window.r3.send = callout (cmd, args) ->
+			#plog ">r3: #{cmd} #{JSON.stringify args}"
+			send cmd, args
 
-if inBrowser 
-	Zepto task "main",main
-else 
-	do task "main",main
 
 		
 		
