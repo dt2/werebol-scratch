@@ -179,21 +179,23 @@ do-cmd: funct[cmd args line][
 			/do [recon[
 			] exit ]
 			send set-html reduce ["rebspace" ajoin[
+				<div style="height: 100%; position: relative;">
 				<div 
-					style="height: 80%;border: solid #00ff00;"
+					style="height: 80%; padding-bottom: 3em; border: solid #00ff00;"
 				>
 				<pre id="child-log" 
 					style="height: 95%; overflow: auto;"
 				>
 				</pre>
 				</div>
-				<div style="height: 2em;border: solid #0000ff;">
+				<div style="width: 100%; height: 2em; bottom: 0; position: absolute; border: solid #0000ff;">
 				<b>{>>}</b>
 				<input type="text" id="reb-input" 
 					value="repeat i 3[print i  ] now"
 					style="width: 80%;">
 				<button id="do">"Do"</button>
-				<div>
+				</div>
+				</div>
 			]]
 			send on-click reduce["add" 'click ["line-1" "line-2"]]
 			send on-click reduce["do" 'click ["reb-input"]]
@@ -260,7 +262,7 @@ print-child: funct[cmd args][
 	]
 	append s reduce [args]
 	send append-text reduce ["child-log" join args ""]
-	print bite s	
+	;print bite s	
 ]
 
 

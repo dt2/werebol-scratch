@@ -52,8 +52,9 @@ main = () ->
 			d = "#{dir}\\.."		
 			ls = spawn "#{d}\\r3.exe", ["-cs","#{d}\\partner.r3"], {stdio: 'pipe'}
 
-	plog "@#{process.platform} dir #{dir} exe #{process.execPath}"
-
+	plog "@#{process.platform} dir #{dir}"
+	plog "exe #{process.execPath}"
+	
 	send "init"
 	
 	task "listen", () ->

@@ -69,7 +69,8 @@
           stdio: 'pipe'
         });
     }
-    plog("@" + process.platform + " dir " + dir + " exe " + process.execPath);
+    plog("@" + process.platform + " dir " + dir);
+    plog("exe " + process.execPath);
     send("init");
     return task("listen", function() {
       var buf;
