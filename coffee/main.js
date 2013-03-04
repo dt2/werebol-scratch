@@ -151,8 +151,8 @@
   };
 
   r3log = function(o) {
+    console.log("R3: " + o);
     o = "r3log: " + o + "  @" + (new Date());
-    console.log(o);
     return logBrowser("" + o + "\n");
   };
 
@@ -183,28 +183,34 @@
   };
 
   handle = function(cmd, args) {
-    var a, path, _ref;
+    var a, path, sendEvent, _ref;
+    sendEvent = function(e, cmd) {
+      var contents, res, _i, _len, _ref;
+      contents = {};
+      _ref = plog(args[2]);
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        e = _ref[_i];
+        contents[e.s] = {
+          s: $("#" + e.s).val()
+        };
+      }
+      res = [
+        [args[0], args[1]], {
+          o: contents
+        }
+      ];
+      return send(cmd, plog(res));
+    };
     switch (cmd) {
       case "set-html":
         return $("#" + args[0].s).html(args[1].s);
       case "on-click":
-        plog(args);
         return $("#" + args[0].s).on('click', callout(function(e) {
-          var contents, res, _i, _len, _ref;
-          contents = {};
-          _ref = plog(args[2]);
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            e = _ref[_i];
-            contents[e.s] = {
-              s: $("#" + e.s).val()
-            };
-          }
-          res = [
-            [args[0], args[1]], {
-              o: contents
-            }
-          ];
-          return send("clicked", plog(res));
+          return sendEvent(e, "clicked");
+        }));
+      case "on-text":
+        return $("#" + args[0].s).on('keyup', callout(function(e) {
+          if (e.keyCode === 13) return sendEvent(e, "text");
         }));
       case "call":
         _ref = args, path = _ref[0], args = _ref[1];

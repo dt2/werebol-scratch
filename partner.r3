@@ -186,23 +186,36 @@ do-cmd: funct[cmd args line][
 				<button id="add">"+"</button>
 				"result: "<span id="res">"---"</span>
 				<p>{Enter rebol:}
-				<br><input type="text" id="reb-input" value="{Hello world}">
+				<br><input type="text" id="reb-input" value="join {Hello } 'world">
 				<button id="do">"Do"</button>
 			]]
-			send on-click reduce["add" 'add ["line-1" "line-2"]]
+			send on-click reduce["add" 'click ["line-1" "line-2"]]
+			send on-click reduce["do" 'click ["reb-input"]]
+			send on-text reduce["reb-input" 'line ["reb-input"]]
 			
 			;send call [ "./r3" ["-cs" "scrapbook.r3"] ]
 			send call [ "./r3" ["--quiet"] ]
 			send call-send mold/only ["hello"]
-			send call-send mold 'quit
+			;send call-send mold 'quit
 		]
 		clicked [
-			?? args
-			send set-html reduce[ "res"
-				mold try[
-					add  load probe args/2/line-1  load probe args/2/line-2
+			switch args/1/1 [
+				"add" [
+					send set-html reduce[ "res"
+						mold try[
+							add  
+								load args/2/line-1  
+								load args/2/line-2
+						]
+					]
+				]
+				"do" [
+					send call-send args/2/reb-input
 				]
 			]
+		]
+		text [
+			?? args
 		]
 		call.exit [
 			print bite reduce [cmd args]
