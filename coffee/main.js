@@ -1,6 +1,10 @@
 (function() {
-  var G, bye, callout, child, dir, g, g_id, gui, handle, haveNode, haveNodekit, inBrowser, log, logBrowser, ls, main, nextTick, plog, quitR3, r3log, send, spawn, task, win,
+  var G, bye, callout, child, dir, g, g_id, gui, handle, haveNode, haveNodekit, inBrowser, log, logBrowser, logIO, ls, main, nextTick, plog, quitR3, r3log, send, spawn, task, win,
     __slice = Array.prototype.slice;
+
+  logIO = true;
+
+  logIO = false;
 
   inBrowser = typeof window !== "undefined";
 
@@ -184,20 +188,23 @@
       case "set-html":
         return $("#" + args[0].s).html(args[1].s);
       case "on-click":
+        plog(args);
         return $("#" + args[0].s).on('click', callout(function(e) {
           var contents, res, _i, _len, _ref;
           contents = {};
-          _ref = args[2];
+          _ref = plog(args[2]);
           for (_i = 0, _len = _ref.length; _i < _len; _i++) {
             e = _ref[_i];
-            contents[e] = $("#" + e).val();
+            contents[e.s] = {
+              s: $("#" + e.s).val()
+            };
           }
           res = [
             [args[0], args[1]], {
               o: contents
             }
           ];
-          return send("clicked", res);
+          return send("clicked", plog(res));
         }));
       case "call":
         _ref = args, path = _ref[0], args = _ref[1];

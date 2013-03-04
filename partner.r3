@@ -1,5 +1,8 @@
 rebol[]
 
+log-io: true
+;log-io: false
+
 buf: copy #{}
 
 unset 'crash
@@ -176,24 +179,28 @@ do-cmd: funct[cmd args line][
 			/do [recon[
 			] exit ]
 			send set-html reduce ["rebspace" ajoin[
-				<span id="out">mold now</span><br>
-				<input type="text" id="line-1" value="123">
-				<br><input type="text" id="line-2" value="234">
+				<span id="out">mold now</span>
+				{ | Chartest: " \  < & ä}
+				<br><input type="text" id="line-1" value="123">
+				<input type="text" id="line-2" value="234">
 				<button id="add">"+"</button>
-				<br>"result: "<span id="res">"---"</span>
-				<p>{chartest: " \  < }<br>
+				"result: "<span id="res">"---"</span>
+				<p>{Enter rebol:}
+				<br><input type="text" id="reb-input" value="{Hello world}">
+				<button id="do">"Do"</button>
 			]]
 			send on-click reduce["add" 'add ["line-1" "line-2"]]
 			
 			;send call [ "./r3" ["-cs" "scrapbook.r3"] ]
-			send call [ "./r3" [] ]
+			send call [ "./r3" ["--quiet"] ]
 			send call-send mold/only ["hello"]
 			send call-send mold 'quit
 		]
 		clicked [
+			?? args
 			send set-html reduce[ "res"
 				mold try[
-					add  load args/2/line-1  load args/2/line-2
+					add  load probe args/2/line-1  load probe args/2/line-2
 				]
 			]
 		]

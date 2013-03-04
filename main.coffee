@@ -1,3 +1,6 @@
+logIO = true
+logIO = false
+
 inBrowser = typeof window != "undefined"
 haveNode = typeof process != "undefined"
 haveNodekit = inBrowser && haveNode
@@ -148,14 +151,16 @@ handle = (cmd, args) ->
 	switch cmd
 		when "set-html" then $("##{args[0].s}").html args[1].s
 		when "on-click"
+			plog args
 			$("##{args[0].s}").on 'click', callout (e) ->
-				contents = {}				
-				contents[e] = $("##{e}").val() for e in args[2]
+				contents = {}
+				for e in plog args[2]
+					contents[e.s] = {s: $("##{e.s}").val()} 
 				res = [
 					[args[0], args[1]],
 					o: contents
 				]
-				send "clicked", res
+				send "clicked", plog res
 		when "call"
 			[path, args] = args
 			child = spawn path.s, (a.s for a in args), {stdio: 'pipe'}
