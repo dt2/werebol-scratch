@@ -247,6 +247,13 @@
         });
       case "call-send":
         return child.stdin.write("" + args.s + "\n");
+      default:
+        send("error", [
+          "unknown", {
+            s: cmd
+          }
+        ]);
+        return plog("Error: unknown " + cmd);
     }
   };
 

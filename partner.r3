@@ -179,14 +179,13 @@ do-cmd: funct[cmd args line][
 			/do [recon[
 			] exit ]
 			send set-html reduce ["rebspace" ajoin[
-				<span id="out">mold now</span>
-				{ | Chartest: " \  < & ä}
-				<br><input type="text" id="line-1" value="123">
-				<input type="text" id="line-2" value="234">
-				<button id="add">"+"</button>
-				"result: "<span id="res">"---"</span>
-				<p>{Enter rebol:}
-				<br><input type="text" id="reb-input" value="join {Hello } 'world">
+				<div style="height: 80%; overflow: auto; border: solid;">
+				<pre id="child-log" >
+				</pre>
+				</div>
+				{Enter rebol:}
+				<input type="text" id="reb-input" value="join {Hello } 'world"
+					style="width: 80%;">
 				<button id="do">"Do"</button>
 			]]
 			send on-click reduce["add" 'click ["line-1" "line-2"]]
@@ -195,8 +194,11 @@ do-cmd: funct[cmd args line][
 			
 			;send call [ "./r3" ["-cs" "scrapbook.r3"] ]
 			send call [ "./r3" ["--quiet"] ]
-			send call-send mold "hello"
+			;send call-send child/last-input: mold/only [do %scrapbook.r3]
 			;send call-send mold 'quit
+			
+			send append-html ["reb-log" "Hello"] 
+			send append-html ["reb-log" "World"] 
 		]
 		clicked [
 			switch args/1/1 [
@@ -230,7 +232,7 @@ do-cmd: funct[cmd args line][
 			print bite reduce [cmd args]
 		]
 	][
-		send "unknown-cmd" line
+		print ["unknown-cmd:" line]
 	]
 ]
 

@@ -187,6 +187,9 @@ handle = (cmd, args) ->
 					#plog data
 		when "call-send"
 			child.stdin.write "#{args.s}\n"
+		else			
+			send "error", ["unknown", {s: cmd}]
+			plog "Error: unknown #{cmd}"
 	
 task "main", () ->
 	if inBrowser 
