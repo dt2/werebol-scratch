@@ -179,14 +179,21 @@ do-cmd: funct[cmd args line][
 			/do [recon[
 			] exit ]
 			send set-html reduce ["rebspace" ajoin[
-				<div style="height: 80%; overflow: auto; border: solid;">
-				<pre id="child-log" >
+				<div 
+					style="height: 80%;border: solid #00ff00;"
+				>
+				<pre id="child-log" 
+					style="height: 95%; overflow: auto;"
+				>
 				</pre>
 				</div>
-				{Enter rebol:}
-				<input type="text" id="reb-input" value="join {Hello } 'world"
+				<div style="height: 2em;border: solid #0000ff;">
+				<b>{>>}</b>
+				<input type="text" id="reb-input" 
+					value="repeat i 3[print i  ] now"
 					style="width: 80%;">
 				<button id="do">"Do"</button>
+				<div>
 			]]
 			send on-click reduce["add" 'click ["line-1" "line-2"]]
 			send on-click reduce["do" 'click ["reb-input"]]
@@ -197,8 +204,8 @@ do-cmd: funct[cmd args line][
 			;send call-send child/last-input: mold/only [do %scrapbook.r3]
 			;send call-send mold 'quit
 			
-			send append-html ["reb-log" "Hello"] 
-			send append-html ["reb-log" "World"] 
+			send append-html ["child-log" "<b>Child-console works<b>"]
+			send append-text ["child-log" " <b>escaping too<b>^/"]
 		]
 		clicked [
 			switch args/1/1 [
@@ -241,6 +248,7 @@ child: object [
 ]
 
 do-child: funct[args][
+	send append-text reduce ["child-log" join args/2/reb-input "^/"]
 	send call-send child/last-input: args/2/reb-input
 ]
 
@@ -251,6 +259,7 @@ print-child: funct[cmd args][
 		child/last-input: none
 	]
 	append s reduce [args]
+	send append-text reduce ["child-log" join args ""]
 	print bite s	
 ]
 

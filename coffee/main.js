@@ -183,7 +183,7 @@
   };
 
   handle = function(cmd, args) {
-    var a, path, sendEvent, _ref;
+    var a, l, path, s, sendEvent, _ref;
     sendEvent = function(e, cmd) {
       var contents, res, _i, _len, _ref;
       contents = {};
@@ -204,6 +204,16 @@
     switch (cmd) {
       case "set-html":
         return $("#" + args[0].s).html(args[1].s);
+      case "append-html":
+        s = args[1].s;
+        l = $("#" + args[0].s);
+        l.append(s);
+        return l.prop("scrollTop", l.prop("scrollHeight"));
+      case "append-text":
+        s = $('<div/>').text(args[1].s).html();
+        l = $("#" + args[0].s);
+        l.append(s);
+        return l.prop("scrollTop", l.prop("scrollHeight"));
       case "on-click":
         return $("#" + args[0].s).on('click', callout(function(e) {
           return sendEvent(e, "clicked");

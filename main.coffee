@@ -161,6 +161,16 @@ handle = (cmd, args) ->
 		
 	switch cmd
 		when "set-html" then $("##{args[0].s}").html args[1].s
+		when "append-html" 
+			s = args[1].s
+			l = $ "##{args[0].s}"
+			l.append s
+			l.prop "scrollTop", l.prop "scrollHeight"
+		when "append-text" 
+			s = $('<div/>').text(args[1].s).html()
+			l = $ "##{args[0].s}"
+			l.append s
+			l.prop "scrollTop", l.prop "scrollHeight"
 		when "on-click"
 			$("##{args[0].s}").on 'click', callout (e) -> sendEvent e, "clicked"
 		when "on-text"
