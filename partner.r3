@@ -184,8 +184,7 @@ do-cmd: funct[cmd args line][
 			]]
 			send on-click reduce["add" 'add ["line-1" "line-2"]]
 			
-			send call [ "pwd" [] ]
-			send call [ "ls" [] ]			
+			send call [ "./r3" ["scrapbook.r3"] ]		
 		]
 		clicked [
 			;print "clicked" probe args
@@ -218,7 +217,7 @@ recon: funct["inline-console" b][
 			print ["==" mold/all do cmd]
 		)]
 	] [
-		print [mold p "'& missing?" ]
+		print ["does not parse, weird: " mold p ]
 	]
 ]
 
