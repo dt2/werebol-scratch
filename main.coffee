@@ -51,8 +51,6 @@ main = () ->
 
 	plog "@#{process.platform} dir #{dir} exe #{process.execPath}"
 
-	log "spawning"	
-
 	send "init"
 	
 	task "listen", () ->
@@ -62,22 +60,17 @@ main = () ->
 		quitR3 = callout () ->
 			send "quit"
 			ls.stdin.end()
-			plog()
 			
 		ls.stdout.on "data", callout (data) ->
-			#log "stdout: " + data
 			buf += data
-			#log "buf: #{buf}"
 			while m = buf.match /(.*?)\n([^]*)/m
 				line = m[1]
 				buf = m[2]
-				#log "got #{m[1]} --- #{m[2]}"
 				if line.match /^\*\* /
-					log "r3error: #{line}#{buf}"
+					r3log "error: #{line}#{buf}"
 					clearTimeout nextTick
 					#process.exit()
 				else if line.match /^~ /
-					plog "< #{line}"
 					if a = line.match /^~ (\S*) (.*)/
 						cmd = a[1]
 						args = a[2]
@@ -89,7 +82,6 @@ main = () ->
 						handle cmd
 				else
 					r3log line
-			plog()		
 
 		ls.stderr.on "data", callout (data) ->
 		  plog "stderr: " + data
@@ -97,15 +89,12 @@ main = () ->
 		ls.on "exit", callout (code) ->
 		  plog "child done res: " + code
 
-	plog "done"
-	
+
 send = (s, v) ->
 	if v != undefined
 		v = JSON.stringify v
-		#log "-> #{s} #{v}"
 		ls.stdin.write "#{s} #{v}\n"
 	else
-		#log "-> #{s}"
 		ls.stdin.write "#{s}\n"
 	
 plog = (o) ->
@@ -117,6 +106,7 @@ plog = (o) ->
 	console.log g.log
 	logBrowser "#{header}\n#{JSON.stringify g.log}\n"
 	g.log = ["..."]
+	o
 	
 logBrowser = (s) ->
 	if inBrowser
@@ -143,8 +133,7 @@ callout = (f, go = g) ->
 			header = "task: #{g.id}, #{g.name}"
 			console.log "callout failed [#{header}]:"
 			console.log e.stack
-			log e
-			plog()
+			plog(e)
 			g = null
 			return
 		g = null
@@ -155,9 +144,9 @@ task = (name,f) ->
 handle = (cmd, args) ->
 	#log "#{cmd} -:- #{JSON.stringify args}"
 	switch cmd
-		when "set-html" then $("##{args[0]}").html args[1]
+		when "set-html" then $("##{args[0].s}").html args[1].s
 		when "on-click"
-			$("##{args[0]}").on 'click', callout (e) ->
+			$("##{args[0].s}").on 'click', callout (e) ->
 				contents = {}				
 				contents[e] = $("##{e}").val() for e in args[2]
 				res = [
@@ -167,9 +156,8 @@ handle = (cmd, args) ->
 				send "clicked", res
 		when "call"
 			task "call", () ->
-				log args
 				[path, args] = args
-				child = spawn path, args, {stdio: 'pipe'}
+				child = spawn path.s, (a.s for a in args), {stdio: 'pipe'}
 				child.on "exit", callout (code) ->
 					send "call.exit", code
 					#plog "exit"
@@ -178,14 +166,12 @@ handle = (cmd, args) ->
 					#plog "close"
 				child.stdout.on "data", callout (data) ->
 					data = "" + data
-					send "call.data", data
+					send "call.data", {s: data}
 					#plog "" + data
 				child.stderr.on "data", callout (data) ->
 					data = "" + data
-					send "call.error", data
+					send "call.error", {s: data}
 					#plog data
-				plog()
-	plog()
 
 	
 task "main", () ->

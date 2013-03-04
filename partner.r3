@@ -34,8 +34,8 @@ bite: funct [b] [
 					append out "}}"
 				)
 				| number! (append out p/1)
-				| string! (repend out [{"} encode-jstring p/1 {"}])
-				| word! (repend out ["{^"w^":^"" p/1 "^"}"])
+				| word! (repend out [{"} encode-jstring to-string p/1 {"}])
+				| string! (repend out ["{^"s^":^"" encode-jstring p/1 "^"}"])
 				| block! (append out bite p/1)	
 			]
 			(append out ",")
@@ -123,9 +123,10 @@ chew: funct [s /local] [
 ]
 
 chew-val: funct [v] [
-	parse v: reduce[v] rule: [ any[
-		number! | string! 
-		| p: map! (p/1: chew-map p/1)
+	parse v: reduce[v] rule: [ any[ p:
+		number! 
+		| string! (p/1: load p/1)
+		| map! (p/1: chew-map p/1)
 		| and block! into rule
 	]]
 	v/1
@@ -139,7 +140,7 @@ chew-map: funct [m /local _body][
 			  repend out [to-set-word key chew-val val] ]
 			val: construct out
 		)
-		| 'w set _body string! (val: to-word _body)
+		| 's set _body string! (val: _body)
 	][val][error ["untyped map" m] crash]
 ]
 
@@ -151,7 +152,7 @@ main-loop: funct[][
 		append buf data
 		while [parse buf [copy line to "^/" skip copy buf to end]] [
 			line: to string! line
-			?? line
+			;?? line
 			cmd: args: none
 			if parse line [
 				[copy cmd to " " skip copy args to end 
@@ -167,11 +168,11 @@ main-loop: funct[][
 ]
 
 do-cmd: funct[cmd args line][
-	switch/default to-word cmd [
+	cmd: load cmd
+	switch/default cmd [
 		quit [print "r3 quitting" quit]
 		echo [print ["echoing" mold args] print [mold chew args]]
 		init [
-			print "r3 starting"
 			/do [recon[
 			] exit ]
 			send set-html reduce ["rebspace" ajoin[
@@ -184,10 +185,9 @@ do-cmd: funct[cmd args line][
 			]]
 			send on-click reduce["add" 'add ["line-1" "line-2"]]
 			
-			send call [ "./r3" ["scrapbook.r3"] ]		
+			send call [ "./r3" ["-cs" "scrapbook.r3"] ]		
 		]
 		clicked [
-			;print "clicked" probe args
 			send set-html reduce[ "res"
 				mold try[
 					add  load args/2/line-1  load args/2/line-2
@@ -195,16 +195,16 @@ do-cmd: funct[cmd args line][
 			]
 		]
 		call.exit [
-			?? args
+			probe reduce [cmd args]
 		]
 		call.close [
-			?? args
+			probe reduce [cmd args]
 		]
 		call.data [
-			?? args
+			probe reduce [cmd args]
 		]
 		call.error [
-			?? args
+			probe reduce [cmd args]
 		]
 	][
 		send "unknown-cmd" line

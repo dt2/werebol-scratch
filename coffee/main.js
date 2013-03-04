@@ -66,42 +66,40 @@
         });
     }
     plog("@" + process.platform + " dir " + dir + " exe " + process.execPath);
-    log("spawning");
     send("init");
-    task("listen", function() {
+    return task("listen", function() {
       var buf;
       buf = "";
       quitR3 = callout(function() {
         send("quit");
-        ls.stdin.end();
-        return plog();
+        return ls.stdin.end();
       });
       ls.stdout.on("data", callout(function(data) {
-        var a, args, cmd, line, m;
+        var a, args, cmd, line, m, _results;
         buf += data;
+        _results = [];
         while (m = buf.match(/(.*?)\n([^]*)/m)) {
           line = m[1];
           buf = m[2];
           if (line.match(/^\*\* /)) {
-            log("r3error: " + line + buf);
-            clearTimeout(nextTick);
+            r3log("error: " + line + buf);
+            _results.push(clearTimeout(nextTick));
           } else if (line.match(/^~ /)) {
-            plog("< " + line);
             if (a = line.match(/^~ (\S*) (.*)/)) {
               cmd = a[1];
               args = a[2];
               if (args) args = JSON.parse(args);
-              handle(cmd, args);
+              _results.push(handle(cmd, args));
             } else {
               a = line.match(/^~ (.*)/);
               cmd = a[1];
-              handle(cmd);
+              _results.push(handle(cmd));
             }
           } else {
-            r3log(line);
+            _results.push(r3log(line));
           }
         }
-        return plog();
+        return _results;
       }));
       ls.stderr.on("data", callout(function(data) {
         return plog("stderr: " + data);
@@ -110,7 +108,6 @@
         return plog("child done res: " + code);
       }));
     });
-    return plog("done");
   };
 
   send = function(s, v) {
@@ -131,7 +128,8 @@
     console.log(header);
     console.log(g.log);
     logBrowser("" + header + "\n" + (JSON.stringify(g.log)) + "\n");
-    return g.log = ["..."];
+    g.log = ["..."];
+    return o;
   };
 
   logBrowser = function(s) {
@@ -167,8 +165,7 @@
         header = "task: " + g.id + ", " + g.name;
         console.log("callout failed [" + header + "]:");
         console.log(e.stack);
-        log(e);
-        plog();
+        plog(e);
         g = null;
         return;
       }
@@ -183,10 +180,9 @@
   handle = function(cmd, args) {
     switch (cmd) {
       case "set-html":
-        $("#" + args[0]).html(args[1]);
-        break;
+        return $("#" + args[0].s).html(args[1].s);
       case "on-click":
-        $("#" + args[0]).on('click', callout(function(e) {
+        return $("#" + args[0].s).on('click', callout(function(e) {
           var contents, res, _i, _len, _ref;
           contents = {};
           _ref = args[2];
@@ -201,13 +197,19 @@
           ];
           return send("clicked", res);
         }));
-        break;
       case "call":
-        task("call", function() {
-          var path, _ref;
-          log(args);
+        return task("call", function() {
+          var a, path, _ref;
           _ref = args, path = _ref[0], args = _ref[1];
-          child = spawn(path, args, {
+          child = spawn(path.s, (function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = args.length; _i < _len; _i++) {
+              a = args[_i];
+              _results.push(a.s);
+            }
+            return _results;
+          })(), {
             stdio: 'pipe'
           });
           child.on("exit", callout(function(code) {
@@ -218,16 +220,18 @@
           }));
           child.stdout.on("data", callout(function(data) {
             data = "" + data;
-            return send("call.data", data);
+            return send("call.data", {
+              s: data
+            });
           }));
-          child.stderr.on("data", callout(function(data) {
+          return child.stderr.on("data", callout(function(data) {
             data = "" + data;
-            return send("call.error", data);
+            return send("call.error", {
+              s: data
+            });
           }));
-          return plog();
         });
     }
-    return plog();
   };
 
   task("main", function() {
