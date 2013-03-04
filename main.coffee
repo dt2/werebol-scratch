@@ -18,7 +18,7 @@ if haveNodekit
 	win.on 'close', () ->
 		quitR3()
 		this.close true
-		
+
 dir = null
 
 child = null
@@ -58,6 +58,8 @@ main = () ->
 		buf = ""
 		
 		quitR3 = callout () ->
+			if child
+				child.stdin.end()
 			send "quit"
 			ls.stdin.end()
 			
@@ -155,9 +157,9 @@ handle = (cmd, args) ->
 				]
 				send "clicked", res
 		when "call"
+			[path, args] = args
+			child = spawn path.s, (a.s for a in args), {stdio: 'pipe'}
 			task "call", () ->
-				[path, args] = args
-				child = spawn path.s, (a.s for a in args), {stdio: 'pipe'}
 				child.on "exit", callout (code) ->
 					send "call.exit", code
 					#plog "exit"
@@ -172,7 +174,8 @@ handle = (cmd, args) ->
 					data = "" + data
 					send "call.error", {s: data}
 					#plog data
-
+		when "call-send"
+			child.stdin.write "#{args.s}\n"
 	
 task "main", () ->
 	if inBrowser 

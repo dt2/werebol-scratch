@@ -185,7 +185,10 @@ do-cmd: funct[cmd args line][
 			]]
 			send on-click reduce["add" 'add ["line-1" "line-2"]]
 			
-			send call [ "./r3" ["-cs" "scrapbook.r3"] ]		
+			;send call [ "./r3" ["-cs" "scrapbook.r3"] ]
+			send call [ "./r3" [] ]
+			send call-send mold/only ["hello"]
+			send call-send mold 'quit
 		]
 		clicked [
 			send set-html reduce[ "res"
@@ -195,16 +198,16 @@ do-cmd: funct[cmd args line][
 			]
 		]
 		call.exit [
-			probe reduce [cmd args]
+			print bite reduce [cmd args]
 		]
 		call.close [
-			probe reduce [cmd args]
+			print bite reduce [cmd args]
 		]
 		call.data [
-			probe reduce [cmd args]
+			print bite reduce [cmd args]
 		]
 		call.error [
-			probe reduce [cmd args]
+			print bite reduce [cmd args]
 		]
 	][
 		send "unknown-cmd" line

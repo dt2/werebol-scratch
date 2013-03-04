@@ -71,6 +71,7 @@
       var buf;
       buf = "";
       quitR3 = callout(function() {
+        if (child) child.stdin.end();
         send("quit");
         return ls.stdin.end();
       });
@@ -178,6 +179,7 @@
   };
 
   handle = function(cmd, args) {
+    var a, path, _ref;
     switch (cmd) {
       case "set-html":
         return $("#" + args[0].s).html(args[1].s);
@@ -198,20 +200,19 @@
           return send("clicked", res);
         }));
       case "call":
+        _ref = args, path = _ref[0], args = _ref[1];
+        child = spawn(path.s, (function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = args.length; _i < _len; _i++) {
+            a = args[_i];
+            _results.push(a.s);
+          }
+          return _results;
+        })(), {
+          stdio: 'pipe'
+        });
         return task("call", function() {
-          var a, path, _ref;
-          _ref = args, path = _ref[0], args = _ref[1];
-          child = spawn(path.s, (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = args.length; _i < _len; _i++) {
-              a = args[_i];
-              _results.push(a.s);
-            }
-            return _results;
-          })(), {
-            stdio: 'pipe'
-          });
           child.on("exit", callout(function(code) {
             return send("call.exit", code);
           }));
@@ -231,6 +232,8 @@
             });
           }));
         });
+      case "call-send":
+        return child.stdin.write("" + args.s + "\n");
     }
   };
 
