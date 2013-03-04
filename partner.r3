@@ -195,7 +195,7 @@ do-cmd: funct[cmd args line][
 			
 			;send call [ "./r3" ["-cs" "scrapbook.r3"] ]
 			send call [ "./r3" ["--quiet"] ]
-			send call-send mold/only ["hello"]
+			send call-send mold "hello"
 			;send call-send mold 'quit
 		]
 		clicked [
@@ -210,12 +210,12 @@ do-cmd: funct[cmd args line][
 					]
 				]
 				"do" [
-					send call-send args/2/reb-input
+					do-child args
 				]
 			]
 		]
 		text [
-			?? args
+			do-child args
 		]
 		call.exit [
 			print bite reduce [cmd args]
@@ -224,7 +224,7 @@ do-cmd: funct[cmd args line][
 			print bite reduce [cmd args]
 		]
 		call.data [
-			print bite reduce [cmd args]
+			print-child cmd args
 		]
 		call.error [
 			print bite reduce [cmd args]
@@ -233,6 +233,25 @@ do-cmd: funct[cmd args line][
 		send "unknown-cmd" line
 	]
 ]
+
+child: object [
+	last-input: 
+]
+
+do-child: funct[args][
+	send call-send child/last-input: args/2/reb-input
+]
+
+print-child: funct[cmd args][
+	s: copy ""
+	if child/last-input [
+		append s ajoin [">> " child/last-input newline]
+		child/last-input: none
+	]
+	append s reduce [args]
+	print bite s	
+]
+
 
 recon: funct["inline-console" b][
 	unless parse b [ any [p: end | opt '>> copy cmd [to '>> | to end] (

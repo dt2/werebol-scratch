@@ -151,13 +151,13 @@ handle = (cmd, args) ->
 	
 	sendEvent =  (e,cmd) -> # cmd from parent
 		contents = {}
-		for e in plog args[2]
+		for e in args[2]
 			contents[e.s] = {s: $("##{e.s}").val()} 
 		res = [
 			[args[0], args[1]],
 			o: contents
 		]
-		send cmd, plog res	
+		send cmd, res	
 		
 	switch cmd
 		when "set-html" then $("##{args[0].s}").html args[1].s

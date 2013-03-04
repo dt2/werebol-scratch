@@ -187,7 +187,7 @@
     sendEvent = function(e, cmd) {
       var contents, res, _i, _len, _ref;
       contents = {};
-      _ref = plog(args[2]);
+      _ref = args[2];
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         e = _ref[_i];
         contents[e.s] = {
@@ -199,7 +199,7 @@
           o: contents
         }
       ];
-      return send(cmd, plog(res));
+      return send(cmd, res);
     };
     switch (cmd) {
       case "set-html":
