@@ -16,7 +16,7 @@ run-r3-wine: $(r3_windows) r3.exe
 run-r3: $(r3_linux) r3
 	./r3 -cs scrapbook.r3
 
-run-nk: coffee $(nodekit_linux_bin) $(r3_linux) r3
+run-nk: coffee dl-linux
 	$(nodekit_linux_bin) .
 	pgrep r3; true #terminate-check
 	
@@ -30,6 +30,8 @@ coffee: coffee/main.js coffee/scrapbook.js
 
 coffee/%.js: %.coffee
 	coffee -c -o coffee/ $< 
+	
+dl-linux: $(nodekit_linux_bin) $(r3_linux)
 	
 $(nodekit_linux_bin):
 	wget -c https://s3.amazonaws.com/node-webkit/v0.4.2/node-webkit-v0.4.2-linux-ia32.tar.gz
@@ -52,8 +54,10 @@ r3.exe:
 # could not test
 #######################################
 
-run-nk-w: coffee $(nodekit_windows_bin) $(r3_windows) r3.exe
+run-nk-w: coffee dl-windows
 	$(nodekit_windows_bin) .
+	
+dl-windows: $(nodekit_windows_bin) $(r3_windows) r3.exe
 	
 $(nodekit_windows_bin): r3.exe
 	wget -c https://s3.amazonaws.com/node-webkit/v0.4.2/node-webkit-v0.4.2-win-ia32.zip
