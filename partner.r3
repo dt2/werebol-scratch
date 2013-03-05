@@ -206,8 +206,8 @@ do-cmd: funct[cmd args line][
 			;send call-send child/last-input: mold/only [do %scrapbook.r3]
 			;send call-send mold 'quit
 			
-			send append-html ["child-log" "<b>Child-console works<b>"]
-			send append-text ["child-log" " <b>escaping too<b>^/"]
+			send focus "reb-input"
+
 		]
 		clicked [
 			switch/default args/1/2 [
@@ -264,6 +264,7 @@ do-child: funct[args][
 	][
 		send set-val reduce["reb-input" line]
 	]
+	send focus "reb-input"
 ]
 
 print-child: funct[cmd args][

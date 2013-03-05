@@ -211,6 +211,8 @@
         return $("#" + args[0].s).html(args[1].s);
       case "set-val":
         return $("#" + args[0].s).val(args[1].s);
+      case "focus":
+        return $("#" + args.s).focus();
       case "append-html":
         s = args[1].s;
         l = $("#" + args[0].s);
