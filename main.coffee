@@ -126,7 +126,7 @@ log = (o) ->
 	
 r3log = (o) ->
 	console.log "R3: #{o}"
-	o = "r3log: #{o}  @#{new Date()}"
+	o = "R3: #{o}  @#{new Date()}"
 	logBrowser "#{o}\n"
 
 callout = (f, go = g) ->
@@ -151,25 +151,23 @@ handle = (cmd, args) ->
 	#log "#{cmd} -:- #{JSON.stringify args}"
 	
 	sendEvent =  (e,cmd) -> # cmd from parent
-		contents = {}
-		for e in args[2]
-			contents[e.s] = {s: $("##{e.s}").val()} 
+		contents = ([{s: e.s}, {s: $("##{e.s}").val()}] for e in args[2])
 		res = [
-			[args[0], args[1]],
-			o: contents
+			[args[0], args[1]], contents
 		]
 		send cmd, res	
 		
 	switch cmd
 		when "set-html" then $("##{args[0].s}").html args[1].s
+		when "set-val" then $("##{args[0].s}").val args[1].s
 		when "append-html" 
 			s = args[1].s
 			l = $ "##{args[0].s}"
 			l.append s
 			l.prop "scrollTop", l.prop "scrollHeight"
-		when "append-text" 
-			s = $('<div/>').text(args[1].s).html()
+		when "append-text"
 			l = $ "##{args[0].s}"
+			s = $('<div/>').text(args[1].s).html()
 			l.append s
 			l.prop "scrollTop", l.prop "scrollHeight"
 		when "on-click"

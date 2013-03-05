@@ -153,7 +153,7 @@
 
   r3log = function(o) {
     console.log("R3: " + o);
-    o = "r3log: " + o + "  @" + (new Date());
+    o = "R3: " + o + "  @" + (new Date());
     return logBrowser("" + o + "\n");
   };
 
@@ -186,33 +186,39 @@
   handle = function(cmd, args) {
     var a, l, path, s, sendEvent, _ref;
     sendEvent = function(e, cmd) {
-      var contents, res, _i, _len, _ref;
-      contents = {};
-      _ref = args[2];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        e = _ref[_i];
-        contents[e.s] = {
-          s: $("#" + e.s).val()
-        };
-      }
-      res = [
-        [args[0], args[1]], {
-          o: contents
+      var contents, e, res;
+      contents = (function() {
+        var _i, _len, _ref, _results;
+        _ref = args[2];
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          e = _ref[_i];
+          _results.push([
+            {
+              s: e.s
+            }, {
+              s: $("#" + e.s).val()
+            }
+          ]);
         }
-      ];
+        return _results;
+      })();
+      res = [[args[0], args[1]], contents];
       return send(cmd, res);
     };
     switch (cmd) {
       case "set-html":
         return $("#" + args[0].s).html(args[1].s);
+      case "set-val":
+        return $("#" + args[0].s).val(args[1].s);
       case "append-html":
         s = args[1].s;
         l = $("#" + args[0].s);
         l.append(s);
         return l.prop("scrollTop", l.prop("scrollHeight"));
       case "append-text":
-        s = $('<div/>').text(args[1].s).html();
         l = $("#" + args[0].s);
+        s = $('<div/>').text(args[1].s).html();
         l.append(s);
         return l.prop("scrollTop", l.prop("scrollHeight"));
       case "on-click":

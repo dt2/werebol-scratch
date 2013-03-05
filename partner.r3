@@ -179,7 +179,7 @@ do-cmd: funct[cmd args line][
 		init [
 			/do [recon[
 			] exit ]
-			send set-html reduce ["rebspace" ajoin[
+			send set-html reduce ["rebspace" trim {
 				<div style="height: 100%; position: relative;">
 				<div 
 					style="height: 80%; padding-bottom: 3em; border: solid #00ff00;"
@@ -190,16 +190,15 @@ do-cmd: funct[cmd args line][
 				</pre>
 				</div>
 				<div style="width: 100%; height: 2em; bottom: 0; position: absolute; border: solid #0000ff;">
-				<b>{>>}</b>
+				<b>&gt;&gt;</b>
 				<input type="text" id="reb-input" 
 					value="repeat i 3[print i  ] now"
 					style="width: 80%;">
-				<button id="do">"Do"</button>
+				<button id="do">Do</button>
 				</div>
 				</div>
-			]]
-			send on-click reduce["add" 'click ["line-1" "line-2"]]
-			send on-click reduce["do" 'click ["reb-input"]]
+			}]
+			send on-click reduce["do" 'do ["reb-input"]]
 			send on-text reduce["reb-input" 'line ["reb-input"]]
 			
 			;send call [ "./r3" ["-cs" "scrapbook.r3"] ]
@@ -211,17 +210,8 @@ do-cmd: funct[cmd args line][
 			send append-text ["child-log" " <b>escaping too<b>^/"]
 		]
 		clicked [
-			switch/default args/1/1 [
-				"add" [
-					send set-html reduce[ "res"
-						mold try[
-							add  
-								load args/2/line-1  
-								load args/2/line-2
-						]
-					]
-				]
-				"do" [
+			switch/default args/1/2 [
+				do [
 					do-child args
 				]
 			][
@@ -256,17 +246,24 @@ child: object [
 do-child: funct[args][
 	++ (in child 'cmd-cnt)
 	id: child/cmd-cnt
+	line: args/2/1/2
 	send append-html reduce ["child-log" reword trim/auto {
 		<input type="text" id="txt-$id" 
 			value="$val"
 			style="width: 80%;"><button id="btn-$id">Do</button>
 		} reduce [
-			'id id 'val esc args/2/reb-input
+			'id id 'val esc line
 		]
 	]
 	send on-click reduce [join "btn-" id 'do reduce[join "txt-" id]]
+	send on-text reduce [join "txt-" id 'do reduce[join "txt-" id]]
 	
-	send call-send child/last-input: args/2/reb-input
+	send call-send child/last-input: line
+	either "reb-input" = args/2/1/1 [
+		send set-val ["reb-input" ""]
+	][
+		send set-val reduce["reb-input" line]
+	]
 ]
 
 print-child: funct[cmd args][
