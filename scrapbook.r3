@@ -25,5 +25,10 @@ recon: funct["inline-console" b][
 
 
 recon[
->> :recon
+>> esc: func[s][
+	parse s [any[change "<" "&lt;" | change ">" "&gt;" | change "&" "&amp;" | skip]]
+	s
+]
+>> esc a: "123 <>&"
+>> a
 ]

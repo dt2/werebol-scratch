@@ -12,6 +12,7 @@ error: funct["hack. use to show error, then crash to mark source" msg][
 ]
 
 send1: funct ['cmd /args s][
+	if log-io [print remold/only ['sending cmd s]]
 	either args [
 		print ["~" cmd bite s]
 	][
@@ -155,7 +156,7 @@ main-loop: funct[][
 		append buf data
 		while [parse buf [copy line to "^/" skip copy buf to end]] [
 			line: to string! line
-			;?? line
+			if log-io [print remold/only ['received line]]
 			cmd: args: none
 			if parse line [
 				[copy cmd to " " skip copy args to end 
@@ -210,7 +211,7 @@ do-cmd: funct[cmd args line][
 			send append-text ["child-log" " <b>escaping too<b>^/"]
 		]
 		clicked [
-			switch args/1/1 [
+			switch/default args/1/1 [
 				"add" [
 					send set-html reduce[ "res"
 						mold try[
@@ -223,6 +224,8 @@ do-cmd: funct[cmd args line][
 				"do" [
 					do-child args
 				]
+			][
+				?? args
 			]
 		]
 		text [
@@ -246,11 +249,23 @@ do-cmd: funct[cmd args line][
 ]
 
 child: object [
+	cmd-cnt: 0
 	last-input: 
 ]
 
 do-child: funct[args][
-	send append-text reduce ["child-log" join args/2/reb-input "^/"]
+	++ (in child 'cmd-cnt)
+	id: child/cmd-cnt
+	send append-html reduce ["child-log" reword trim/auto {
+		<input type="text" id="txt-$id" 
+			value="$val"
+			style="width: 80%;"><button id="btn-$id">Do</button>
+		} reduce [
+			'id id 'val esc args/2/reb-input
+		]
+	]
+	send on-click reduce [join "btn-" id 'do reduce[join "txt-" id]]
+	
 	send call-send child/last-input: args/2/reb-input
 ]
 
@@ -265,6 +280,12 @@ print-child: funct[cmd args][
 	;print bite s	
 ]
 
+esc: func[s][
+	parse s: copy s [any[
+		change "<" "&lt;" | change ">" "&gt;" | change "&" "&amp;" | change {"} "&quot;"
+		| skip]]
+	s
+]
 
 recon: funct["inline-console" b][
 	unless parse b [ any [p: end | opt '>> copy cmd [to '>> | to end] (
