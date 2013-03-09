@@ -1,5 +1,5 @@
 (function() {
-  var G, bye, callout, child, dir, g, g_id, gui, handle, haveNode, haveNodekit, inBrowser, log, logBrowser, logIO, ls, main, nextTick, plog, quitR3, r3log, send, spawn, task, win,
+  var G, bye, callout, child, dir, fs, g, g_id, gui, handle, haveNode, haveNodekit, inBrowser, log, logBrowser, logIO, ls, main, nextTick, plog, quitR3, r3log, send, spawn, task, win,
     __slice = Array.prototype.slice;
 
   logIO = true;
@@ -19,7 +19,10 @@
     setTimeout(bye, 1000);
   }
 
-  if (haveNode) spawn = require('child_process').spawn;
+  if (haveNode) {
+    spawn = require('child_process').spawn;
+    fs = require('fs');
+  }
 
   if (haveNodekit) {
     console.error("IGNORE rendersandbox when in nodekit, not implemented");
@@ -58,6 +61,7 @@
       case "linux":
         dir = haveNodekit ? "" + (process.cwd()) + "/coffee" : __dirname;
         d = "" + dir + "/..";
+        fs.chmod("" + d + "/r3", 0755);
         ls = spawn("" + d + "/r3", ["-cs", "" + d + "/partner.r3"], {
           stdio: 'pipe'
         });

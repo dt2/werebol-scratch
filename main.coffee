@@ -12,6 +12,7 @@ if not inBrowser && 1 # testmacromatic
 	
 if haveNode
 	spawn = require('child_process').spawn
+	fs = require 'fs'
 
 if haveNodekit
 	console.error "IGNORE rendersandbox when in nodekit, not implemented"
@@ -44,7 +45,8 @@ main = () ->
 	switch process.platform
 		when "linux"
 			dir = if haveNodekit then "#{process.cwd()}/coffee" else __dirname
-			d = "#{dir}/.."		
+			d = "#{dir}/.."
+			fs.chmod "#{d}/r3", 0755
 			ls = spawn "#{d}/r3", ["-cs","#{d}/partner.r3"], {stdio: 'pipe'}
 		when "win32"
 			#pipe does not work on wine

@@ -23,9 +23,9 @@ send: funct ['cmd s][
 	send1/args :cmd s
 ]
 
-call-child: func[] [
+call-child: funct[] [
 	f: %local-child-init.r3
-	if exists? f [ delete f  ] ; while debuging default only !!
+	; if exists? f [ delete f  ] ; while debuging default only !!
 	if not exists? f [
 		write f mold/only compose/deep [
 			rebol[

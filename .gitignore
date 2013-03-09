@@ -4,6 +4,8 @@
 
 local-*
 
+build-dir/
+
 node-webkit-v*
 
 #coffee/
