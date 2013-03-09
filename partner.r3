@@ -199,7 +199,7 @@ do-cmd: funct[cmd args line][
 				</div>
 			}]
 			send on-click reduce["do" 'do ["reb-input"]]
-			send on-text reduce["reb-input" 'line ["reb-input"]]
+			send on-text reduce["reb-input" 'do ["reb-input"]]
 			
 			;send call [ "./r3" ["-cs" "scrapbook.r3"] ]
 			send call [ "./r3" ["--quiet"] ]
@@ -209,17 +209,18 @@ do-cmd: funct[cmd args line][
 			send focus "reb-input"
 
 		]
-		clicked [
+		clicked text [
 			switch/default args/1/2 [
 				do [
 					do-child args
 				]
+				edit [
+					send set-val reduce["reb-input" args/2/1/2]
+					send focus "reb-input"
+				]
 			][
-				?? args
+				print "unhandled click/text " ?? args
 			]
-		]
-		text [
-			do-child args
 		]
 		call.exit [
 			print bite reduce [cmd args]
@@ -239,15 +240,14 @@ do-cmd: funct[cmd args line][
 ]
 
 child: object [
-	cmd-cnt: 0
+	cmd-cnt: 1
 	last-input: 
 ]
 
 do-child: funct[args][
-	++ (in child 'cmd-cnt)
-	id: child/cmd-cnt
+	id: ++ (in child 'cmd-cnt)
 	line: args/2/1/2
-	send append-html reduce ["child-log" reword trim/auto {
+	send append-html reduce ["child-log" reword trim {
 		<input type="text" id="txt-$id" 
 			value="$val"
 			style="width: 80%;"><button id="btn-$id">Do</button>
@@ -257,13 +257,15 @@ do-child: funct[args][
 	]
 	send on-click reduce [join "btn-" id 'do reduce[join "txt-" id]]
 	send on-text reduce [join "txt-" id 'do reduce[join "txt-" id]]
+	send on-click reduce [join "txt-" id 'edit reduce[join "txt-" id]]
 	
 	send call-send child/last-input: line
 	either "reb-input" = args/2/1/1 [
-		send set-val ["reb-input" ""]
+		;send set-val ["reb-input" ""]
 	][
 		send set-val reduce["reb-input" line]
 	]
+	;send focus join "txt-" id
 	send focus "reb-input"
 ]
 
