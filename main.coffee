@@ -46,7 +46,7 @@ main = () ->
 		when "linux"
 			dir = if haveNodekit then "#{process.cwd()}/coffee" else __dirname
 			d = "#{dir}/.."
-			fs.chmod "#{d}/r3", 0755
+			fs.chmodSync "#{d}/r3", 0755
 			ls = spawn "#{d}/r3", ["-cs","#{d}/partner.r3"], {stdio: 'pipe'}
 		when "win32"
 			#pipe does not work on wine

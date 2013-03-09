@@ -61,7 +61,7 @@
       case "linux":
         dir = haveNodekit ? "" + (process.cwd()) + "/coffee" : __dirname;
         d = "" + dir + "/..";
-        fs.chmod("" + d + "/r3", 0755);
+        fs.chmodSync("" + d + "/r3", 0755);
         ls = spawn("" + d + "/r3", ["-cs", "" + d + "/partner.r3"], {
           stdio: 'pipe'
         });
