@@ -1,5 +1,5 @@
 (function() {
-  var G, bye, callout, child, dir, fs, g, g_id, gui, handle, haveNode, haveNodekit, inBrowser, log, logBrowser, logIO, ls, main, nextTick, plog, quitR3, r3log, send, spawn, task, win,
+  var G, bye, callout, child, dir, fs, g, g_id, gui, handle, haveNode, haveNodekit, inBrowser, log, logBrowser, logIO, ls, main, nextTick, plog, quitR3, r3log, send, spawn, task, win, workdir,
     __slice = Array.prototype.slice;
 
   logIO = true;
@@ -37,6 +37,8 @@
 
   dir = null;
 
+  workdir = null;
+
   child = null;
 
   g_id = 0;
@@ -61,6 +63,7 @@
       case "linux":
         dir = haveNodekit ? "" + (process.cwd()) + "/coffee" : __dirname;
         d = "" + dir + "/..";
+        workdir = d.match(/tmp/) ? "" + process.execPath + "/.." : d;
         fs.chmodSync("" + d + "/r3", 0755);
         ls = spawn("" + d + "/r3", ["-cs", "" + d + "/partner.r3"], {
           stdio: 'pipe'
@@ -75,7 +78,17 @@
     }
     plog("@" + process.platform + " dir " + dir);
     plog("exe " + process.execPath);
-    send("init");
+    plog("work " + workdir);
+    send("init", {
+      o: {
+        workdir: {
+          f: workdir
+        },
+        datadir: {
+          f: dir
+        }
+      }
+    });
     return task("listen", function() {
       var buf;
       buf = "";

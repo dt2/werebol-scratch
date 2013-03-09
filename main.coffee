@@ -24,6 +24,7 @@ if haveNodekit
 		this.close true
 
 dir = null
+workdir = null
 
 child = null
 
@@ -46,6 +47,7 @@ main = () ->
 		when "linux"
 			dir = if haveNodekit then "#{process.cwd()}/coffee" else __dirname
 			d = "#{dir}/.."
+			workdir = if d.match /tmp/ then "#{process.execPath}/.." else d
 			fs.chmodSync "#{d}/r3", 0755
 			ls = spawn "#{d}/r3", ["-cs","#{d}/partner.r3"], {stdio: 'pipe'}
 		when "win32"
@@ -56,8 +58,9 @@ main = () ->
 
 	plog "@#{process.platform} dir #{dir}"
 	plog "exe #{process.execPath}"
+	plog "work #{workdir}"
 	
-	send "init"
+	send "init", o: {workdir: {f: workdir}, datadir: {f: dir}}
 	
 	task "listen", () ->
 		

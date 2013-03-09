@@ -24,7 +24,8 @@ send: funct ['cmd s][
 ]
 
 call-child: funct[] [
-	f: %local-child-init.r3
+	;f: %local-child-init.r3
+	f: to-file join global/env/workdir %/local-child-init.r3
 	; if exists? f [ delete f  ] ; while debuging default only !!
 	if not exists? f [
 		write f mold/only compose/deep [
@@ -34,12 +35,13 @@ call-child: funct[] [
 				purpose: "users place to prepare console"
 				file: (f)
 			]
-			reduce [system/script/header/file "loaded"]
+			reduce [system/script/header/file "loaded2"]
 		]
 	]
 	send call [ "./r3" ["--quiet"] ]
 	cmd: remold/only ['do f]
 	send append-html reduce ["child-log" ajoin[<i> "Auto >> " esc cmd </i> newline] ]
+	;send call-send 
 	send call-send child/last-input: cmd
 ]
 
@@ -191,12 +193,17 @@ main-loop: funct[][
 	]
 ]
 
+global: map []
+
 do-cmd: funct[cmd args line][
 	cmd: load cmd
 	switch/default cmd [
 		quit [print "r3 quitting" quit]
 		echo [print ["echoing" mold args] print [mold chew args]]
 		init [
+			global/env: args
+			global/env/workdir: to-file global/env/workdir
+			?? global
 			/do [recon[
 			] exit ]
 			send set-html reduce ["rebspace" trim {
