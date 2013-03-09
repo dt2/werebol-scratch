@@ -64,6 +64,7 @@ main = () ->
 		quitR3 = callout () ->
 			if child
 				child.stdin.end()
+				child.kill()
 			send "quit"
 			ls.stdin.end()
 			
@@ -126,7 +127,8 @@ log = (o) ->
 	
 r3log = (o) ->
 	console.log "R3: #{o}"
-	o = "R3: #{o}  @#{new Date()}"
+	o = "R3: #{o}"
+	#o = "R3: #{o}  @#{new Date()}"
 	logBrowser "#{o}\n"
 
 callout = (f, go = g) ->
@@ -197,6 +199,9 @@ handle = (cmd, args) ->
 					#plog data
 		when "call-send"
 			child.stdin.write "#{args.s}\n"
+		when "call-kill"
+			plog args
+			child.kill()
 		else			
 			send "error", ["unknown", {s: cmd}]
 			plog "Error: unknown #{cmd}"

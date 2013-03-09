@@ -76,7 +76,10 @@
       var buf;
       buf = "";
       quitR3 = callout(function() {
-        if (child) child.stdin.end();
+        if (child) {
+          child.stdin.end();
+          child.kill();
+        }
         send("quit");
         return ls.stdin.end();
       });
@@ -153,7 +156,7 @@
 
   r3log = function(o) {
     console.log("R3: " + o);
-    o = "R3: " + o + "  @" + (new Date());
+    o = "R3: " + o;
     return logBrowser("" + o + "\n");
   };
 
@@ -266,6 +269,9 @@
         });
       case "call-send":
         return child.stdin.write("" + args.s + "\n");
+      case "call-kill":
+        plog(args);
+        return child.kill();
       default:
         send("error", [
           "unknown", {

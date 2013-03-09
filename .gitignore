@@ -2,6 +2,8 @@
 *.log
 *.kate-swp
 
+local-*
+
 node-webkit-v*
 
 #coffee/

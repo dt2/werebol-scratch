@@ -23,6 +23,26 @@ send: funct ['cmd s][
 	send1/args :cmd s
 ]
 
+call-child: func[] [
+	f: %local-child-init.r3
+	if exists? f [ delete f  ] ; while debuging default only !!
+	if not exists? f [
+		write f mold/only compose/deep [
+			rebol[
+				title: "Init debug console"
+				git: "do not include"
+				purpose: "users place to prepare console"
+				file: (f)
+			]
+			reduce [system/script/header/file "loaded"]
+		]
+	]
+	send call [ "./r3" ["--quiet"] ]
+	cmd: remold/only ['do f]
+	send append-html reduce ["child-log" ajoin[<i> "Auto >> " esc cmd </i> newline] ]
+	send call-send child/last-input: cmd
+]
+
 bite: funct [b] [
 	out: copy ""
 	if no-block: not block? b [b: reduce[b]]
@@ -192,17 +212,19 @@ do-cmd: funct[cmd args line][
 				<div style="width: 100%; height: 2em; bottom: 0; position: absolute; border: solid #0000ff;">
 				<b>&gt;&gt;</b>
 				<input type="text" id="reb-input" 
-					value="repeat i 3[print i  ] now"
+					value="probe get/any 'a a: now"
 					style="width: 80%;">
 				<button id="do">Do</button>
+				<button id="restart">Restart</button>
 				</div>
 				</div>
 			}]
 			send on-click reduce["do" 'do ["reb-input"]]
 			send on-text reduce["reb-input" 'do ["reb-input"]]
+			send on-click reduce["restart" 'restart []]
 			
 			;send call [ "./r3" ["-cs" "scrapbook.r3"] ]
-			send call [ "./r3" ["--quiet"] ]
+			call-child
 			;send call-send child/last-input: mold/only [do %scrapbook.r3]
 			;send call-send mold 'quit
 			
@@ -217,6 +239,10 @@ do-cmd: funct[cmd args line][
 				edit [
 					send set-val reduce["reb-input" args/2/1/2]
 					send focus "reb-input"
+				]
+				restart [
+					send1 call-kill
+					call-child
 				]
 			][
 				print "unhandled click/text " ?? args
