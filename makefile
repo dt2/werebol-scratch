@@ -7,29 +7,29 @@ r3_windows = r3-g6a79a7b.exe
 nodekit_windows = node-webkit-v0.4.2-win-ia32
 nodekit_windows_bin = node-webkit-v0.4.2-win-ia32/nw.exe
 
-#all: run-bu
-all: coffee run-nk
+all: coffee run-bu
+#all: coffee run-nk
 #all: run-r3
 
 run-bu: build
 	#$(nodekit_linux_bin) build-dir/werecon.nw
-	build-dir/werecon/werecon
+	#build-dir/werecon/werecon
+	build-dir/untar/werecon/werecon
 
 build: coffee
-	rm build-dir/nw/* -rf
-	rm build-dir/*.* -f
+	rm build-dir/ -rf
 	mkdir -p build-dir/nw
 	cp -a *.r3 *.coffee coffee/ *.html *.json *.js build-dir/nw
 	cp -a $(r3_linux) build-dir/nw/r3 #./r3 is link
-	du build-dir
 	cd build-dir/nw && zip -r ../werecon.nw *
 	#bin
 	mkdir -p build-dir/werecon
-	rm build-dir/werecon/* -rf
 	cat $(nodekit_linux_bin) build-dir/werecon.nw >build-dir/werecon/werecon
 	chmod +x build-dir/werecon/werecon
 	cp -a $(nodekit_linux)/nw.pak build-dir/werecon
 	cd build-dir && tar -czf werecon.tgz werecon
+	mkdir -p build-dir/untar
+	cd build-dir/untar && tar -xzf ../werecon.tgz
 	
 	
 run-r3-wine: $(r3_windows) r3.exe

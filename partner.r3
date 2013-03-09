@@ -26,7 +26,10 @@ send: funct ['cmd s][
 call-child: funct[] [
 	;f: %local-child-init.r3
 	f: to-file join global/env/workdir %/local-child-init.r3
-	; if exists? f [ delete f  ] ; while debuging default only !!
+	
+	; while debuging default only !!! 
+	; if exists? f [ delete f  ] 
+	
 	if not exists? f [
 		write f mold/only compose/deep [
 			rebol[
@@ -35,13 +38,16 @@ call-child: funct[] [
 				purpose: "users place to prepare console"
 				file: (f)
 			]
-			reduce [system/script/header/file "loaded2"]
+			reduce [system/script/header/file "loaded"]
 		]
 	]
 	send call [ "./r3" ["--quiet"] ]
-	cmd: remold/only ['do f]
-	send append-html reduce ["child-log" ajoin[<i> "Auto >> " esc cmd </i> newline] ]
-	;send call-send 
+	cmd: replace/all trim mold/only compose[
+		change-dir (global/env/workdir)
+		env: (global/env) 
+		do (f)
+	] newline " "
+	send append-html reduce ["child-log" ajoin[<i> esc cmd </i> newline] ]
 	send call-send child/last-input: cmd
 ]
 
@@ -167,7 +173,8 @@ chew-map: funct [m /local _body][
 			val: construct out
 		)
 		| 's set _body string! (val: _body)
-	][val][error ["untyped map" m] crash]
+		| 'f set _body string! (val: to-file _body)
+	][val][error ["unimplemented type" m] crash]
 ]
 
 
@@ -193,7 +200,7 @@ main-loop: funct[][
 	]
 ]
 
-global: map []
+global: object [env:]
 
 do-cmd: funct[cmd args line][
 	cmd: load cmd
@@ -202,7 +209,6 @@ do-cmd: funct[cmd args line][
 		echo [print ["echoing" mold args] print [mold chew args]]
 		init [
 			global/env: args
-			global/env/workdir: to-file global/env/workdir
 			?? global
 			/do [recon[
 			] exit ]
@@ -219,7 +225,7 @@ do-cmd: funct[cmd args line][
 				<div style="width: 100%; height: 2em; bottom: 0; position: absolute; border: solid #0000ff;">
 				<b>&gt;&gt;</b>
 				<input type="text" id="reb-input" 
-					value="probe get/any 'a a: now"
+					value="to-string read %local-child-init.r3"
 					style="width: 80%;">
 				<button id="do">Do</button>
 				<button id="restart">Restart</button>
