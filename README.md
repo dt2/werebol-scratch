@@ -36,4 +36,4 @@ Own risk ;)
 
 Screenshot
 ----------------
-![Screenshot](http://i.imgur.com/jgXbzCH.png)
+![Screenshot](http://i.imgur.com/tpbE3NX.png)
