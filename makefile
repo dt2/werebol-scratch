@@ -7,8 +7,8 @@ r3_windows = r3-g6a79a7b.exe
 nodekit_windows = node-webkit-v0.4.2-win-ia32
 nodekit_windows_bin = node-webkit-v0.4.2-win-ia32/nw.exe
 
-all: coffee run-bu
-#all: coffee run-nk
+#all: coffee run-bu
+all: coffee run-nk
 #all: run-r3
 
 run-bu: build

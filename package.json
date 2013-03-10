@@ -1,4 +1,9 @@
 {
   "name": "nw-demo",
-  "main": "index.html"
+  "main": "index.html",
+  "single-instance": false,
+  "window": {
+    "toolbar": false,
+    "show": false
+  }
 }

@@ -28,6 +28,8 @@
     console.error("IGNORE rendersandbox when in nodekit, not implemented");
     gui = require('nw.gui');
     win = gui.Window.get();
+    document.title = "WereCon";
+    win.show();
     quitR3 = null;
     win.on('close', function() {
       quitR3();
@@ -72,6 +74,7 @@
       case "win32":
         dir = haveNodekit ? "" + (process.cwd()) + "\\coffee" : __dirname;
         d = "" + dir + "\\..";
+        workdir = d;
         ls = spawn("" + d + "\\r3.exe", ["-cs", "" + d + "\\partner.r3"], {
           stdio: 'pipe'
         });
@@ -79,6 +82,7 @@
     plog("@" + process.platform + " dir " + dir);
     plog("exe " + process.execPath);
     plog("work " + workdir);
+    if (inBrowser) document.title = "" + document.title + " " + workdir;
     send("init", {
       o: {
         workdir: {

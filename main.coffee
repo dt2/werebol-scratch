@@ -18,6 +18,8 @@ if haveNodekit
 	console.error "IGNORE rendersandbox when in nodekit, not implemented"
 	gui = require 'nw.gui'
 	win = gui.Window.get()
+	document.title = "WereCon"
+	win.show();
 	quitR3 = null
 	win.on 'close', () ->
 		quitR3()
@@ -53,12 +55,15 @@ main = () ->
 		when "win32"
 			#pipe does not work on wine
 			dir = if haveNodekit then "#{process.cwd()}\\coffee" else __dirname
-			d = "#{dir}\\.."		
+			d = "#{dir}\\.."
+			workdir = d
 			ls = spawn "#{d}\\r3.exe", ["-cs","#{d}\\partner.r3"], {stdio: 'pipe'}
 
 	plog "@#{process.platform} dir #{dir}"
 	plog "exe #{process.execPath}"
 	plog "work #{workdir}"
+	if inBrowser
+		document.title = "#{document.title} #{workdir}"
 	
 	send "init", o: {workdir: {f: workdir}, datadir: {f: dir}}
 	
