@@ -64,6 +64,7 @@ build: coffee
 	rm build-dir/ -rf
 	mkdir -p build-dir/nw
 	cp -a *.r3 *.coffee coffee/ *.html *.json *.js build-dir/nw
+	rm  -f build-dir/nw/local-*
 	cp -a $(r3_linux) build-dir/nw/r3 #./r3 is link
 	cd build-dir/nw && zip -r ../werecon.nw *
 	#bin

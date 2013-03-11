@@ -1,5 +1,5 @@
 (function() {
-  var G, bye, callout, child, dir, fs, g, g_id, gui, handle, haveNode, haveNodekit, inBrowser, log, logBrowser, logIO, ls, main, nextTick, plog, quitR3, r3log, send, spawn, task, win, workdir,
+  var G, bye, callout, child, dir, editor, fs, g, g_id, gui, handle, haveNode, haveNodekit, inBrowser, log, logBrowser, logIO, ls, main, nextTick, plog, quitR3, r3log, send, spawn, task, win, workdir,
     __slice = Array.prototype.slice;
 
   logIO = true;
@@ -18,6 +18,8 @@
     };
     setTimeout(bye, 1000);
   }
+
+  if (inBrowser) editor = ace.edit("editor");
 
   if (haveNode) {
     spawn = require('child_process').spawn;
@@ -220,8 +222,10 @@
           _results.push([
             {
               s: e.s
-            }, {
+            }, e.s !== "editor" ? {
               s: $("#" + e.s).val()
+            } : {
+              s: editor.getValue()
             }
           ]);
         }
@@ -293,6 +297,8 @@
       case "call-kill":
         plog(args);
         return child.kill();
+      case "editor-set":
+        return editor.setValue(args.s);
       default:
         send("error", [
           "unknown", {

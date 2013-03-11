@@ -25,7 +25,7 @@ send: funct ['cmd s][
 
 call-child: funct[] [
 	;f: %local-child-init.r3
-	f: global/env/workdir/(child/file)
+	f: global/env/workdir/(child/init)
 	
 	; while debuging default only !!! 
 	; if exists? f [ delete f  ] 
@@ -226,6 +226,7 @@ do-cmd: funct[cmd args line][
 				<b>&gt;&gt;</b>
 				<input type="text" id="reb-input" 
 					value="to-string read %local-child-init.r3"
+					title="Hint: shift-tab goes to previous line"
 					style="width: 70%;">
 				<button id="do">Do</button>
 				<button id="restart">Restart</button>
@@ -242,14 +243,28 @@ do-cmd: funct[cmd args line][
 			;send call-send mold 'quit
 			
 			send focus "reb-input"
-			
+
 			send set-html reduce[ "editor-toolbar" reword trim{
-					<button>Dummy</button>
-					$file
+					<button id="do-file" 
+					accesskey="d" title="shortcut: alt-d"
+					>Do</button>
+					<span title="$lfile">$file</span>
 				} reduce [
 					'file child/file
+					'lfile global/env/workdir/(child/file)
+				]
+			]
+			send editor-set either exists? child/file [
+				to-string read child/file
+			] [
+				mold/only [
+					rebol[]
+					"new file"
 				]
 			]
+			send on-click reduce["do-file" 'do-file [
+				"editor"
+			] []]
 
 		]
 		clicked text [
@@ -264,6 +279,14 @@ do-cmd: funct[cmd args line][
 				restart [
 					send1 call-kill
 					call-child
+				]
+				do-file [
+					write global/env/workdir/(child/file) args/2/1/2
+					send1 call-kill
+					call-child
+					cmd: remold/only ['print ['--- now] 'do global/env/workdir/(child/file)]
+					send append-html reduce ["child-log" ajoin[<i> esc cmd </i> newline] ]
+					send call-send cmd
 				]
 			][
 				print "unhandled click/text " ?? args
@@ -288,7 +311,8 @@ do-cmd: funct[cmd args line][
 
 child: object [
 	cmd-cnt: 1
-	file: %local-child-init.r3
+	file: %local-scrapbook.r3
+	init: %local-child-init.r3
 	last-input: 
 ]
 

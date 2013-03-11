@@ -10,6 +10,9 @@ if not inBrowser && 1 # testmacromatic
 		quitR3()
 	setTimeout bye, 1000
 	
+if inBrowser
+	editor = ace.edit("editor");
+	
 if haveNode
 	spawn = require('child_process').spawn
 	fs = require 'fs'
@@ -163,7 +166,11 @@ handle = (cmd, args) ->
 	#log "#{cmd} -:- #{JSON.stringify args}"
 	
 	sendEvent =  (e,cmd) -> # cmd from parent
-		contents = ([{s: e.s}, {s: $("##{e.s}").val()}] for e in args[2])
+		contents = ([
+				{s: e.s}, 
+				if e.s != "editor" then {s: $("##{e.s}").val()}
+				else {s: editor.getValue()}
+		] for e in args[2] )
 		res = [
 			[args[0], args[1]], contents
 		]
@@ -212,6 +219,10 @@ handle = (cmd, args) ->
 		when "call-kill"
 			plog args
 			child.kill()
+			
+		when "editor-set"
+			editor.setValue args.s
+
 		else			
 			send "error", ["unknown", {s: cmd}]
 			plog "Error: unknown #{cmd}"
