@@ -6,6 +6,8 @@ local-*
 
 build-dir/
 
+werebol-scratch-bin/
+
 node-webkit-v*
 
 #coffee/

@@ -226,7 +226,7 @@ do-cmd: funct[cmd args line][
 				<b>&gt;&gt;</b>
 				<input type="text" id="reb-input" 
 					value="to-string read %local-child-init.r3"
-					style="width: 80%;">
+					style="width: 70%;">
 				<button id="do">Do</button>
 				<button id="restart">Restart</button>
 				</div>

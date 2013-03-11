@@ -4,6 +4,8 @@
   "single-instance": false,
   "window": {
     "toolbar": false,
-    "show": false
+    "show": false,
+    "width": 950,
+    "height": 550
   }
 }
