@@ -25,7 +25,7 @@ send: funct ['cmd s][
 
 call-child: funct[] [
 	;f: %local-child-init.r3
-	f: to-file join global/env/workdir %/local-child-init.r3
+	f: global/env/workdir/(child/file)
 	
 	; while debuging default only !!! 
 	; if exists? f [ delete f  ] 
@@ -242,6 +242,14 @@ do-cmd: funct[cmd args line][
 			;send call-send mold 'quit
 			
 			send focus "reb-input"
+			
+			send set-html reduce[ "editor-toolbar" reword trim{
+					<button>Dummy</button>
+					$file
+				} reduce [
+					'file child/file
+				]
+			]
 
 		]
 		clicked text [
@@ -280,6 +288,7 @@ do-cmd: funct[cmd args line][
 
 child: object [
 	cmd-cnt: 1
+	file: %local-child-init.r3
 	last-input: 
 ]
 
