@@ -6,6 +6,8 @@ local-*
 
 build-dir/
 
+werecon/
+
 werebol-scratch-bin/
 
 node-webkit-v*

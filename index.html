@@ -11,7 +11,9 @@
 	</div>
 </div>
 
-<div id="editor" style="height: 100%; width: 49%; border: solid #ffff00; float: right;">
+
+
+<div id="editor" style="left: 50%; height: 97%; width: 49%; border: solid #ffff00; float: right;">
 ...
 </div>
 <div style="clear: left;"></div>
@@ -22,10 +24,11 @@
 <!--
 -->
 <script src="zepto.min.js"></script>
+<script src="ace.js"></script>
 <script src="native.js"></script>
 <script src="coffee/main.js"></script>
 <script>
-	
+var editor = ace.edit("editor");
 </script>
 <!--
 

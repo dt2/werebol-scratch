@@ -40,9 +40,11 @@ run-nos: coffee
 coffee: coffee/main.js coffee/scrapbook.js
 
 coffee/%.js: %.coffee
-	coffee -c -o coffee/ $< 
+	coffee -c -o coffee/ $<
 	
-dl-linux: $(nodekit_linux_bin) $(r3_linux)
+dl-all: ace.js
+	
+dl-linux: $(nodekit_linux_bin) $(r3_linux) dl-all
 	
 $(nodekit_linux_bin):
 	wget -c https://s3.amazonaws.com/node-webkit/v0.4.2/node-webkit-v0.4.2-linux-ia32.tar.gz
@@ -54,6 +56,9 @@ $(r3_linux):
 	chmod +x $(r3_linux)
 	rm r3
 	ln -s $(r3_linux) r3
+	
+ace.js:
+	wget -c http://d1n0x3qji82z53.cloudfront.net/src-min-noconflict/ace.js
 
 build: coffee
 	rm build-dir/ -rf
@@ -69,6 +74,7 @@ build: coffee
 	cd build-dir && tar -czf werecon.tgz werecon
 	mkdir -p build-dir/untar
 	cd build-dir/untar && tar -xzf ../werecon.tgz
+	cp -au build-dir/untar/werecon .
 	
 	
 #######################################	
@@ -79,7 +85,7 @@ build: coffee
 run-nk-w: coffee dl-windows
 	$(nodekit_windows_bin) .
 	
-dl-windows: $(nodekit_windows_bin) $(r3_windows) r3.exe
+dl-windows: $(nodekit_windows_bin) $(r3_windows) r3.exe dl-all
 	
 r3.exe:
 	wget -c http://www.rebolsource.net/downloads/win32-x86/r3-g6a79a7b.exe
