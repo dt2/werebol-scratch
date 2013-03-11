@@ -254,8 +254,9 @@ do-cmd: funct[cmd args line][
 					'lfile global/env/workdir/(child/file)
 				]
 			]
-			send editor-set either exists? child/file [
-				to-string read child/file
+			f: global/env/workdir/(child/file)
+			send editor-set either exists? f [
+				to-string read f
 			] [
 				mold/only [
 					rebol[]
