@@ -1,0 +1,3 @@
+[submodule "nw-sample-apps"]
+	path = nw-sample-apps
+	url = https://github.com/zcbenz/nw-sample-apps.git
