@@ -289,18 +289,17 @@ do-child: funct[args][
 	send append-html reduce ["child-log" reword trim {
 		<input type="text" id="txt-$id" 
 			value="$val"
-			style="width: 80%;"><button id="btn-$id">Do</button>
+			style="width: 80%;">
 		} reduce [
 			'id id 'val esc line
 		]
 	]
-	send on-click reduce [join "btn-" id 'do reduce[join "txt-" id]]
 	send on-text reduce [join "txt-" id 'do reduce[join "txt-" id]]
-	send on-click reduce [join "txt-" id 'edit reduce[join "txt-" id]]
+	;send on-click reduce [join "txt-" id 'edit reduce[join "txt-" id]]
 	
 	send call-send child/last-input: line
 	either "reb-input" = args/2/1/1 [
-		;send set-val ["reb-input" ""]
+		send set-val ["reb-input" ""]
 	][
 		send set-val reduce["reb-input" line]
 	]
