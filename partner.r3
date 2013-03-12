@@ -246,7 +246,7 @@ do-cmd: funct[cmd args line][
 
 			send set-html reduce[ "editor-toolbar" reword trim{
 					<button id="do-file" 
-					accesskey="d" title="shortcut: alt-d"
+					accesskey="e" title="shortcut: alt-e"
 					>Do</button>
 					<span title="$lfile">$file</span>
 				} reduce [
