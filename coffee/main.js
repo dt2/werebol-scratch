@@ -91,7 +91,7 @@
           f: workdir
         },
         datadir: {
-          f: dir
+          f: "" + dir + "/.."
         }
       }
     });

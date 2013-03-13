@@ -1,6 +1,6 @@
 {
   "name": "Nodekit"
-, "files": [ { "git": 1 }, {"directory": ".", "filters": ["*.js"
+, "files": [ { "git": 1 }, {"directory": ".", "filters": ["*.js", "*.r3"
   ] } ]
 , "build": {
     "directory": "."

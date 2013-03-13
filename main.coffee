@@ -68,7 +68,7 @@ main = () ->
 	if inBrowser
 		document.title = "#{document.title} #{workdir}"
 	
-	send "init", o: {workdir: {f: workdir}, datadir: {f: dir}}
+	send "init", o: {workdir: {f: workdir}, datadir: {f: "#{dir}/.."}}
 	
 	task "listen", () ->
 		

@@ -202,7 +202,7 @@ main-loop: funct[][
 
 global: object [
 	strings: object [
-		stub-file-content: "New file, do not save me unchanged."
+		stub-file-content: "New file, change content to create."
 	]
 	env:
 ]
@@ -249,15 +249,20 @@ do-cmd: funct[cmd args line][
 			;send call-send mold 'quit
 			
 			send focus "reb-input"
+			files: reduce[
+				child/file
+				%local-child-init.r3
+			]
+			unless error? related: try[
+				h: first l: load/header global/env/workdir/(child/file)
+				get/any in h 'related
+			
+			] [
+				files: union files related
+			]
 			data-list: copy ""
 			select-list: copy ""
-			foreach file reduce[
-				child/file
-				%local-scrapbook-2.r3
-				%local-child-init.r3
-				%child.coffee
-				%child.r3
-			] [
+			foreach file files [
 				vals: reduce['s esc file]
 				repend data-list reword {<option value="$s"></option>^/} vals
 				repend select-list reword {<option value="$s"> $s} vals
@@ -292,8 +297,14 @@ do-cmd: funct[cmd args line][
 			send set-val reduce["editor" either exists? f [
 				to-string read f
 			] [
-				mold/only [
-					rebol[]
+				mold/only compose/deep[
+					rebol[
+						title: "Scrapbook"
+						file: (child/file)
+						related: [
+							%local-scrapbook-2.r3
+						]
+					]
 					"new file"
 				]
 			]]
