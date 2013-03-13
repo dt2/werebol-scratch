@@ -238,7 +238,12 @@
       case "set-html":
         return $("#" + args[0].s).html(args[1].s);
       case "set-val":
-        return $("#" + args[0].s).val(args[1].s);
+        if (args[0].s !== "editor") {
+          return $("#" + args[0].s).val(args[1].s);
+        } else {
+          return editor.setValue(args[1].s);
+        }
+        break;
       case "focus":
         return $("#" + args.s).focus();
       case "append-html":

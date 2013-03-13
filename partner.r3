@@ -218,15 +218,16 @@ do-cmd: funct[cmd args line][
 					style="height: 80%; padding-bottom: 3em; border: solid #00ff00;"
 				>
 				<pre id="child-log" 
-					style="height: 95%; overflow: auto;"
+					style="height: 95%; overflow: auto; white-space: pre-wrap;"
 				>
 				</pre>
 				</div>
 				<div style="width: 100%; height: 2em; bottom: 0; position: absolute; border: solid #0000ff;">
 				<b>&gt;&gt;</b>
 				<input type="text" id="reb-input" 
-					value="to-string read %local-child-init.r3"
-					title="Hint: shift-tab goes to previous line"
+					value=""
+					title="Hint: shift-tab goes to previous line. alt-w edits."
+					accesskey="w"!
 					style="width: 70%;">
 				<button id="do">Do</button>
 				<button id="restart">Restart</button>
@@ -248,10 +249,23 @@ do-cmd: funct[cmd args line][
 					<button id="do-file" 
 					accesskey="e" title="shortcut: alt-e"
 					>Do</button>
-					<span title="$lfile">$file</span>
+					
+					<input id="edit-file" type="text" value="$file" 
+						list="file-options" 
+						title="File in $ldir"
+						style="width: 70%;"
+						accesskey="d"
+					/>
+					<datalist id="file-options">
+					<option value="$file"></option>
+					<option value="child.coffee"></option>
+					<option value="child.r3"></option>
+					</datalist>
+					<input type="hidden" id="this-file" value="$file">
 				} reduce [
 					'file child/file
 					'lfile global/env/workdir/(child/file)
+					'ldir global/env/workdir
 				]
 			]
 			f: global/env/workdir/(child/file)
@@ -266,6 +280,8 @@ do-cmd: funct[cmd args line][
 			send on-click reduce["do-file" 'do-file [
 				"editor"
 			] []]
+			send on-text reduce["edit-file" 'edit-file [
+				"edit-file" "this-file" "editor" ]]
 
 		]
 		clicked text [
@@ -288,6 +304,19 @@ do-cmd: funct[cmd args line][
 					cmd: remold/only ['print ['--- now] 'do global/env/workdir/(child/file)]
 					send append-html reduce ["child-log" ajoin[<i> esc cmd </i> newline] ]
 					send call-send cmd
+				]
+				edit-file [
+					f: args/2/1/2
+					lf: global/env/workdir/:f
+					of: global/env/workdir/(args/2/2/2)
+					write of args/2/3/2
+					either exists? lf [
+						s: to-string read lf
+						send set-val reduce["edit-file" f]
+						send set-val reduce["editor" s]
+					][
+						print ["WERECON-ERROR, no " mold lf]
+					]
 				]
 			][
 				print "unhandled click/text " ?? args
@@ -312,6 +341,7 @@ do-cmd: funct[cmd args line][
 
 child: object [
 	cmd-cnt: 1
+	odd-out: false
 	file: %local-scrapbook.r3
 	init: %local-child-init.r3
 	last-input: 
@@ -348,7 +378,34 @@ print-child: funct[cmd args][
 		child/last-input: none
 	]
 	append s reduce [args]
-	send append-text reduce ["child-log" join args ""]
+	lines: parse args "^/"
+	?? lines
+	forall lines [
+		child/odd-out: not child/odd-out
+		lines/1: reword {<span style="background: $col;">$str^/</span>} reduce [
+			'col pick ["#f4f4f4" "#e8e8e8"] child/odd-out
+			'str esc lines/1
+		]
+	]
+	out: copy "" line: rest: none
+	parse args [any[
+		copy line thru "^/" (
+			append out reword {<span style="background: $col;">$str</span>}
+				reduce [
+					'col pick ["#f4f4f4" "#e8e8e8"] child/odd-out
+					'str esc line
+				]
+			child/odd-out: not child/odd-out
+		)
+		| copy rest to end (
+			append out reword {<span style="background: $col;">$str</span>} 
+				reduce [
+					'col pick ["#f4f4f4" "#e8e8e8"] child/odd-out
+					'str esc rest
+				]
+		)
+	]]
+	send append-html reduce ["child-log" out]
 	;print bite s	
 ]
 

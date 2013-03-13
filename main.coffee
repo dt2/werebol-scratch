@@ -178,7 +178,9 @@ handle = (cmd, args) ->
 		
 	switch cmd
 		when "set-html" then $("##{args[0].s}").html args[1].s
-		when "set-val" then $("##{args[0].s}").val args[1].s
+		when "set-val" 
+			if args[0].s != "editor" then $("##{args[0].s}").val args[1].s
+			else editor.setValue args[1].s
 		when "focus" then $("##{args.s}").focus()
 		when "append-html" 
 			s = args[1].s
@@ -220,7 +222,7 @@ handle = (cmd, args) ->
 			plog args
 			child.kill()
 			
-		when "editor-set"
+		when "editor-set" #deprecated, use set-val
 			editor.setValue args.s
 
 		else			
