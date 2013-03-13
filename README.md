@@ -4,25 +4,26 @@ werebol-scratch
 Werebol - part human, part javascript (rebol, node, webkit)
 -----------------------------------------------------------------------------------
 
-Use with https://github.com/rogerwang/node-webkit , type make to run. rebol-binary included.
-Testet on Ubuntu 12.04
+Testet on Ubuntu 12.04.
+Binary: https://github.com/dt2/werebol-scratch-bin/archive/werecon.zip .
+From source type make to setup and run. Rebol-binary included, downloads https://github.com/rogerwang/node-webkit 
+
 
 Latest feature:
 --------------------
 
-* console
-* one rebol controls the other thru node. but that is hidden :)
+* ace-editor, console-history
 
-Running demo in vm
+Running demo in vm, short blog
 -------------------
 
-From inside image: Google for "werebol" (worked here). Back at this readme again. Download https://raw.github.com/dt2/werebol-scratch/master/fresh-vm/makefile . Cd to it, type "make", enter password. It does an apt-get, downloads and runs demo.
+From inside image: Googled for "werebol". Back at this readme again. Download https://raw.github.com/dt2/werebol-scratch/master/fresh-vm/makefile . Cd to it, type "make", enter password. It does an apt-get, downloads and runs demo.
 
 I use an image from http://virtualboxes.org/images/ubuntu/ on virtualbox on ubuntu 12.04. 
 Active user account(s) (username/password): ubuntu/reverse.
 http://sourceforge.net/projects/virtualboximage/files/Ubuntu%20Linux/12.04/ubuntu_12.04-x86.7z
 
-By gui. Unzipped, klicked on *.vbox, ignored a warning about a *.vdi, disabled bluetooth somewhere. A while later the launcher for this image appeared.
+Image-setup by gui. Unzipped, klicked on *.vbox, ignored a warning about a *.vdi, disabled bluetooth somewhere. A while later the launcher for this image appeared.
 
 
 make includes downloading and running.
@@ -36,4 +37,4 @@ Own risk ;)
 
 Screenshot
 ----------------
-![Screenshot](http://i.imgur.com/tpbE3NX.png)
+![Screenshot](https://raw.github.com/dt2/werebol-scratch-bin/master/screenshot.png)
