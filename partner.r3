@@ -200,7 +200,12 @@ main-loop: funct[][
 	]
 ]
 
-global: object [env:]
+global: object [
+	strings: object [
+		stub-file-content: "New file, do not save me unchanged."
+	]
+	env:
+]
 
 do-cmd: funct[cmd args line][
 	cmd: load cmd
@@ -244,45 +249,63 @@ do-cmd: funct[cmd args line][
 			;send call-send mold 'quit
 			
 			send focus "reb-input"
-
-			send set-html reduce[ "editor-toolbar" reword trim{
+			data-list: copy ""
+			select-list: copy ""
+			foreach file reduce[
+				child/file
+				%local-scrapbook-2.r3
+				%local-child-init.r3
+				%child.coffee
+				%child.r3
+			] [
+				vals: reduce['s esc file]
+				repend data-list reword {<option value="$s"></option>^/} vals
+				repend select-list reword {<option value="$s"> $s} vals
+			]			
+			send set-html reduce[ "editor-toolbar" reword trim/auto{
 					<button id="do-file" 
-					accesskey="e" title="shortcut: alt-e"
+					accesskey="e" 
+					title="shortcut: alt-e; saves, does hardwired $file"
 					>Do</button>
-					
+					<select id="select-file" style="width: 2em">
+						$sel
+					</select>
 					<input id="edit-file" type="text" value="$file" 
 						list="file-options" 
-						title="File in $ldir"
-						style="width: 70%;"
+						title="shortcut alt-d; has completion; dir: $ldir"
+						style="width: 50%;"
 						accesskey="d"
 					/>
 					<datalist id="file-options">
-					<option value="$file"></option>
-					<option value="child.coffee"></option>
-					<option value="child.r3"></option>
+						$dal
 					</datalist>
 					<input type="hidden" id="this-file" value="$file">
-				} reduce [
-					'file child/file
-					'lfile global/env/workdir/(child/file)
-					'ldir global/env/workdir
+				} probe reduce [
+					'file esc child/file
+					'lfile esc global/env/workdir/(child/file)
+					'ldir esc global/env/workdir
+					'dal data-list
+					'sel select-list
 				]
 			]
 			f: global/env/workdir/(child/file)
-			send editor-set either exists? f [
+			send set-val reduce["editor" either exists? f [
 				to-string read f
 			] [
 				mold/only [
 					rebol[]
 					"new file"
 				]
-			]
+			]]
 			send on-click reduce["do-file" 'do-file [
-				"editor"
+				"this-file" "editor"
 			] []]
 			send on-text reduce["edit-file" 'edit-file [
-				"edit-file" "this-file" "editor" ]]
-
+				"edit-file" "this-file" "editor" 
+			]]
+			send on-click reduce["select-file" 'edit-file [
+				"select-file" "this-file" "editor" 
+			]]
 		]
 		clicked text [
 			switch/default args/1/2 [
@@ -298,7 +321,14 @@ do-cmd: funct[cmd args line][
 					call-child
 				]
 				do-file [
-					write global/env/workdir/(child/file) args/2/1/2
+					f: global/env/workdir/(args/2/1/2)
+					s: args/2/2/2
+					if global/strings/stub-file-content <> s [
+						write f s
+					]
+					send append-text reduce [
+						"child-log" "KILLING CHILD^/"
+					]
 					send1 call-kill
 					call-child
 					cmd: remold/only ['print ['--- now] 'do global/env/workdir/(child/file)]
@@ -310,13 +340,12 @@ do-cmd: funct[cmd args line][
 					lf: global/env/workdir/:f
 					of: global/env/workdir/(args/2/2/2)
 					write of args/2/3/2
-					either exists? lf [
-						s: to-string read lf
-						send set-val reduce["edit-file" f]
-						send set-val reduce["editor" s]
-					][
-						print ["WERECON-ERROR, no " mold lf]
-					]
+					s: either exists? lf [
+						to-string read lf
+					][ global/strings/stub-file-content ]
+					send set-val reduce["this-file" f]
+					send set-val reduce["editor" s]
+					send set-val reduce["edit-file" f]
 				]
 			][
 				print "unhandled click/text " ?? args
@@ -350,7 +379,7 @@ child: object [
 do-child: funct[args][
 	id: ++ (in child 'cmd-cnt)
 	line: args/2/1/2
-	send append-html reduce ["child-log" reword trim {
+	send append-html reduce ["child-log" reword trim/auto {
 		<input type="text" id="txt-$id" 
 			value="$val"
 			style="width: 80%;">
@@ -378,15 +407,6 @@ print-child: funct[cmd args][
 		child/last-input: none
 	]
 	append s reduce [args]
-	lines: parse args "^/"
-	?? lines
-	forall lines [
-		child/odd-out: not child/odd-out
-		lines/1: reword {<span style="background: $col;">$str^/</span>} reduce [
-			'col pick ["#f4f4f4" "#e8e8e8"] child/odd-out
-			'str esc lines/1
-		]
-	]
 	out: copy "" line: rest: none
 	parse args [any[
 		copy line thru "^/" (
