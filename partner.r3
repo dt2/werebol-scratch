@@ -355,7 +355,9 @@ do-cmd: funct[cmd args line][
 						to-string read lf
 					][ global/strings/stub-file-content ]
 					send set-val reduce["this-file" f]
-					send set-val reduce["editor" object[content: s]]
+					send set-val reduce["editor" object[
+						content: s
+					]]
 					send set-val reduce["edit-file" f]
 				]
 			][

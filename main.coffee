@@ -167,9 +167,15 @@ handle = (cmd, args) ->
 	
 	sendEvent =  (e,cmd) -> # cmd from parent
 		contents = ([
-				{s: e.s}, 
-				if e.s != "editor" then {s: $("##{e.s}").val()}
-				else o: {content: {s: editor.getValue()}}
+			{s: e.s}, 
+			if e.s != "editor" then {s: $("##{e.s}").val()}
+			else
+				sel = editor.session.getTextRange editor.getSelectionRange()
+				curs = editor.selection.getCursor()
+				o: 
+					content: s: editor.getValue()
+					selection: s: sel
+					cursor: o: curs
 		] for e in args[2] )
 		res = [
 			[args[0], args[1]], contents
@@ -180,8 +186,19 @@ handle = (cmd, args) ->
 		when "set-html" then $("##{args[0].s}").html args[1].s
 		when "set-val" 
 			if args[0].s != "editor" then $("##{args[0].s}").val args[1].s
-			else if args[1].s then editor.setValue args[1].s
-			else editor.setValue args[1].o.content.s
+			else 
+				if args[1].s
+					editor.setValue args[1].s
+					editor.gotoLine 0, 0, true # hack: clears focus
+				else 
+					if args[1].o.content
+						editor.setValue args[1].o.content.s
+					if args[1].o.row
+						editor.gotoLine args[1].o.row, 0, true
+					else 
+						editor.gotoLine 0, 0, true # hack: clears focus
+					editor.focus()
+
 		when "focus" then $("##{args.s}").focus()
 		when "append-html" 
 			s = args[1].s

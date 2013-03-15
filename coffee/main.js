@@ -212,7 +212,7 @@
   handle = function(cmd, args) {
     var a, l, path, s, sendEvent, _ref;
     sendEvent = function(e, cmd) {
-      var contents, e, res;
+      var contents, curs, e, res, sel;
       contents = (function() {
         var _i, _len, _ref, _results;
         _ref = args[2];
@@ -224,13 +224,19 @@
               s: e.s
             }, e.s !== "editor" ? {
               s: $("#" + e.s).val()
-            } : {
+            } : (sel = editor.session.getTextRange(editor.getSelectionRange()), curs = editor.selection.getCursor(), {
               o: {
                 content: {
                   s: editor.getValue()
+                },
+                selection: {
+                  s: sel
+                },
+                cursor: {
+                  o: curs
                 }
               }
-            }
+            })
           ]);
         }
         return _results;
@@ -244,10 +250,19 @@
       case "set-val":
         if (args[0].s !== "editor") {
           return $("#" + args[0].s).val(args[1].s);
-        } else if (args[1].s) {
-          return editor.setValue(args[1].s);
         } else {
-          return editor.setValue(args[1].o.content.s);
+          if (args[1].s) {
+            editor.setValue(args[1].s);
+            return editor.gotoLine(0, 0, true);
+          } else {
+            if (args[1].o.content) editor.setValue(args[1].o.content.s);
+            if (args[1].o.row) {
+              editor.gotoLine(args[1].o.row, 0, true);
+            } else {
+              editor.gotoLine(0, 0, true);
+            }
+            return editor.focus();
+          }
         }
         break;
       case "focus":
