@@ -257,7 +257,6 @@
           } else {
             if (args[1].o.content) editor.setValue(args[1].o.content.s);
             if (args[1].o.cursor) {
-              plog(args);
               curs = args[1].o.cursor.o;
               editor.gotoLine(curs.row + 1, curs.column, true);
             } else {

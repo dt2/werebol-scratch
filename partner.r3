@@ -1,6 +1,5 @@
 rebol[]
 
-log-io: true
 log-io: false
 
 project-file: %.local-werecon-project.r3
@@ -363,17 +362,14 @@ do-cmd: funct[cmd args line][
 						to-string read lf
 					][ global/strings/stub-file-content ]
 					send set-val reduce["this-file" f]
-					recon [
-						
-					]
 					either ff: global/project/files/(to-file f) [
 						curs: ff/cursor
 					] [
 						curs: object [row: 0 column: 0]
 					]
 					send set-val reduce["editor" object[
+						cursor: curs
 						content: s
-						cursor: curs ?? cursor
 					]]
 					send set-val reduce["edit-file" f]
 				]
