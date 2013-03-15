@@ -3,6 +3,7 @@
 *.kate-swp
 
 local-*
+.local-*
 
 build-dir/
 

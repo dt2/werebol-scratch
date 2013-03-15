@@ -1,12 +1,12 @@
 rebol[]
 
 log-io: true
-;log-io: false
+log-io: false
 
-project-file: %.werecon-project.r3
+project-file: %.local-werecon-project.r3
 
 global: object [
-	env: project: none
+	env: project-file: project: none
 	strings: object [
 		stub-file-content: "New file, change content to create."
 	]
@@ -216,11 +216,13 @@ do-cmd: funct[cmd args line][
 		echo [print ["echoing" mold args] print [mold chew args]]
 		init [
 			global/env: args
-			global/project: either exists? project-file [
-				load project-file
+			
+			global/project-file: global/env/workdir/:project-file			
+			global/project: either exists? global/project-file [
+				load global/project-file
 			] [
-				object[
-					files: copy[]
+				map reduce[
+					'files map []
 				]
 			]
 			?? global
@@ -295,7 +297,7 @@ do-cmd: funct[cmd args line][
 						$dal
 					</datalist>
 					<input type="hidden" id="this-file" value="$file">
-				} probe reduce [
+				} reduce [
 					'file esc child/file
 					'lfile esc global/env/workdir/(child/file)
 					'ldir esc global/env/workdir
@@ -388,11 +390,15 @@ do-cmd: funct[cmd args line][
 ]
 
 save-editor: funct[file edi] [
-	?? file ?? edi
 	f: global/env/workdir/(file)
 	s: edi/content
 	if global/strings/stub-file-content <> s [
 		write f s
+		global/project/files/(to-file file): map reduce ['row edi/cursor/row]
+		save/all/length/header global/project-file global/project compose [
+			Type: data
+			Date: (now)
+		]
 	]
 ]
 
