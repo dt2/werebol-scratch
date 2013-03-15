@@ -193,8 +193,10 @@ handle = (cmd, args) ->
 				else 
 					if args[1].o.content
 						editor.setValue args[1].o.content.s
-					if args[1].o.row
-						editor.gotoLine args[1].o.row, 0, true
+					if args[1].o.cursor
+						plog args
+						curs = args[1].o.cursor.o
+						editor.gotoLine curs.row + 1, curs.column, true
 					else 
 						editor.gotoLine 0, 0, true # hack: clears focus
 					editor.focus()

@@ -363,8 +363,17 @@ do-cmd: funct[cmd args line][
 						to-string read lf
 					][ global/strings/stub-file-content ]
 					send set-val reduce["this-file" f]
+					recon [
+						
+					]
+					either ff: global/project/files/(to-file f) [
+						curs: ff/cursor
+					] [
+						curs: object [row: 0 column: 0]
+					]
 					send set-val reduce["editor" object[
 						content: s
+						cursor: curs ?? cursor
 					]]
 					send set-val reduce["edit-file" f]
 				]
@@ -394,7 +403,7 @@ save-editor: funct[file edi] [
 	s: edi/content
 	if global/strings/stub-file-content <> s [
 		write f s
-		global/project/files/(to-file file): map reduce ['row edi/cursor/row]
+		global/project/files/(to-file file): map reduce ['cursor edi/cursor]
 		save/all/length/header global/project-file global/project compose [
 			Type: data
 			Date: (now)
