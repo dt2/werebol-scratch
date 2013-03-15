@@ -305,10 +305,10 @@ do-cmd: funct[cmd args line][
 				]
 			]
 			f: global/env/workdir/(child/file)
-			send set-val reduce["editor" either exists? f [
-				to-string read f
+			either exists? ?? f [
+				edit-file to-string child/file
 			] [
-				mold/only compose/deep[
+				send set-val reduce["editor" mold/only compose/deep[
 					rebol[
 						title: "Scrapbook"
 						file: (child/file)
@@ -317,8 +317,8 @@ do-cmd: funct[cmd args line][
 						]
 					]
 					"new file"
-				]
-			]]
+				]]
+			]
 			send on-click reduce["do-file" 'do-file [
 				"this-file" "editor"
 			] []]
@@ -356,22 +356,7 @@ do-cmd: funct[cmd args line][
 				]
 				edit-file [
 					save-editor args/2/2/2 args/2/3/2
-					f: args/2/1/2
-					lf: global/env/workdir/:f
-					s: either exists? lf [
-						to-string read lf
-					][ global/strings/stub-file-content ]
-					send set-val reduce["this-file" f]
-					either ff: global/project/files/(to-file f) [
-						curs: ff/cursor
-					] [
-						curs: object [row: 0 column: 0]
-					]
-					send set-val reduce["editor" object[
-						cursor: curs
-						content: s
-					]]
-					send set-val reduce["edit-file" f]
+					edit-file args/2/1/2
 				]
 			][
 				print "unhandled click/text " ?? args
@@ -405,6 +390,24 @@ save-editor: funct[file edi] [
 			Date: (now)
 		]
 	]
+]
+
+edit-file: funct[f] [
+	lf: global/env/workdir/:f
+	s: either exists? lf [
+		to-string read lf
+	][ global/strings/stub-file-content ]
+	send set-val reduce["this-file" f]
+	either ff: global/project/files/(to-file f) [
+		curs: ff/cursor
+	] [
+		curs: object [row: 0 column: 0]
+	]
+	send set-val reduce["editor" object[
+		cursor: curs
+		content: s
+	]]
+	send set-val reduce["edit-file" f]
 ]
 
 child: object [
