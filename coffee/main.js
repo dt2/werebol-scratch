@@ -225,7 +225,11 @@
             }, e.s !== "editor" ? {
               s: $("#" + e.s).val()
             } : {
-              s: editor.getValue()
+              o: {
+                content: {
+                  s: editor.getValue()
+                }
+              }
             }
           ]);
         }
@@ -240,8 +244,10 @@
       case "set-val":
         if (args[0].s !== "editor") {
           return $("#" + args[0].s).val(args[1].s);
-        } else {
+        } else if (args[1].s) {
           return editor.setValue(args[1].s);
+        } else {
+          return editor.setValue(args[1].o.content.s);
         }
         break;
       case "focus":

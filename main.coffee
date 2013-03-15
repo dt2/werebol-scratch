@@ -169,7 +169,7 @@ handle = (cmd, args) ->
 		contents = ([
 				{s: e.s}, 
 				if e.s != "editor" then {s: $("##{e.s}").val()}
-				else {s: editor.getValue()}
+				else o: {content: {s: editor.getValue()}}
 		] for e in args[2] )
 		res = [
 			[args[0], args[1]], contents
@@ -180,7 +180,8 @@ handle = (cmd, args) ->
 		when "set-html" then $("##{args[0].s}").html args[1].s
 		when "set-val" 
 			if args[0].s != "editor" then $("##{args[0].s}").val args[1].s
-			else editor.setValue args[1].s
+			else if args[1].s then editor.setValue args[1].s
+			else editor.setValue args[1].o.content.s
 		when "focus" then $("##{args.s}").focus()
 		when "append-html" 
 			s = args[1].s

@@ -333,7 +333,7 @@ do-cmd: funct[cmd args line][
 				]
 				do-file [
 					f: global/env/workdir/(args/2/1/2)
-					s: args/2/2/2
+					s: args/2/2/2/content
 					if global/strings/stub-file-content <> s [
 						write f s
 					]
@@ -350,12 +350,12 @@ do-cmd: funct[cmd args line][
 					f: args/2/1/2
 					lf: global/env/workdir/:f
 					of: global/env/workdir/(args/2/2/2)
-					write of args/2/3/2
+					write of args/2/3/2/content
 					s: either exists? lf [
 						to-string read lf
 					][ global/strings/stub-file-content ]
 					send set-val reduce["this-file" f]
-					send set-val reduce["editor" s]
+					send set-val reduce["editor" object[content: s]]
 					send set-val reduce["edit-file" f]
 				]
 			][
