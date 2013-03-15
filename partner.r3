@@ -3,6 +3,15 @@ rebol[]
 log-io: true
 ;log-io: false
 
+project-file: %.werecon-project.r3
+
+global: object [
+	env: project: none
+	strings: object [
+		stub-file-content: "New file, change content to create."
+	]
+]
+
 buf: copy #{}
 
 unset 'crash
@@ -200,13 +209,6 @@ main-loop: funct[][
 	]
 ]
 
-global: object [
-	strings: object [
-		stub-file-content: "New file, change content to create."
-	]
-	env:
-]
-
 do-cmd: funct[cmd args line][
 	cmd: load cmd
 	switch/default cmd [
@@ -214,7 +216,15 @@ do-cmd: funct[cmd args line][
 		echo [print ["echoing" mold args] print [mold chew args]]
 		init [
 			global/env: args
+			global/project: either exists? project-file [
+				load project-file
+			] [
+				object[
+					files: copy[]
+				]
+			]
 			?? global
+			
 			/do [recon[
 			] exit ]
 			send set-html reduce ["rebspace" trim {
@@ -332,11 +342,7 @@ do-cmd: funct[cmd args line][
 					call-child
 				]
 				do-file [
-					f: global/env/workdir/(args/2/1/2)
-					s: args/2/2/2/content
-					if global/strings/stub-file-content <> s [
-						write f s
-					]
+					save-editor args/2/1/2 args/2/2/2
 					send append-text reduce [
 						"child-log" "KILLING CHILD^/"
 					]
@@ -345,12 +351,12 @@ do-cmd: funct[cmd args line][
 					cmd: remold/only ['print ['--- now] 'do global/env/workdir/(child/file)]
 					send append-html reduce ["child-log" ajoin[<i> esc cmd </i> newline] ]
 					send call-send cmd
+					send focus "editor"
 				]
 				edit-file [
+					save-editor args/2/2/2 args/2/3/2
 					f: args/2/1/2
 					lf: global/env/workdir/:f
-					of: global/env/workdir/(args/2/2/2)
-					write of args/2/3/2/content
 					s: either exists? lf [
 						to-string read lf
 					][ global/strings/stub-file-content ]
@@ -378,6 +384,15 @@ do-cmd: funct[cmd args line][
 		]
 	][
 		print ["unknown-cmd:" line]
+	]
+]
+
+save-editor: funct[file edi] [
+	?? file ?? edi
+	f: global/env/workdir/(file)
+	s: edi/content
+	if global/strings/stub-file-content <> s [
+		write f s
 	]
 ]
 

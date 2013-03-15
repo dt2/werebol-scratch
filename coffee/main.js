@@ -266,7 +266,12 @@
         }
         break;
       case "focus":
-        return $("#" + args.s).focus();
+        if (args.s !== "editor") {
+          return $("#" + args.s).focus();
+        } else {
+          return editor.focus();
+        }
+        break;
       case "append-html":
         s = args[1].s;
         l = $("#" + args[0].s);

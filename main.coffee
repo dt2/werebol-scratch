@@ -199,7 +199,9 @@ handle = (cmd, args) ->
 						editor.gotoLine 0, 0, true # hack: clears focus
 					editor.focus()
 
-		when "focus" then $("##{args.s}").focus()
+		when "focus" 
+			if args.s != "editor" then $("##{args.s}").focus()
+			else editor.focus()
 		when "append-html" 
 			s = args[1].s
 			l = $ "##{args[0].s}"
