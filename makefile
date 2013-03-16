@@ -11,9 +11,20 @@ nodekit_windows_bin = node-webkit-v0.4.2-win-ia32/nw.exe
 all: coffee run-nk
 #all: run-r3
 
-run-r3: $(r3_linux)
-	chmod +x ./$(r3_linux) && ./$(r3_linux) -q
+#run-r3: $(r3_linux)
+run-r3: make-rebol $(r3_linux)
+	./r3-child -q
+#	chmod +x ./$(r3_linux) && ./$(r3_linux) -q
 #	./r3 -cs scrapbook.r3
+
+make-rebol: r3-source r3-source
+	cp -a $(r3_linux) r3-source/make/r3-make
+	make -C r3-source/make prep
+	make -C r3-source/make
+	cp -a rebol-source/make/r3 r3-child
+	
+r3-source:
+	git clone https://github.com/rebol/r3.git r3-source
 
 gitpull:
 	git pull
