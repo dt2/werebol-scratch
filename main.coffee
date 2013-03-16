@@ -12,6 +12,7 @@ if not inBrowser && 1 # testmacromatic
 	
 if inBrowser
 	editor = ace.edit("editor");
+	editor.getSession().setUseSoftTabs(false);	
 	
 if haveNode
 	spawn = require('child_process').spawn

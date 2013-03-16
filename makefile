@@ -11,6 +11,10 @@ nodekit_windows_bin = node-webkit-v0.4.2-win-ia32/nw.exe
 all: coffee run-nk
 #all: run-r3
 
+run-r3: $(r3_linux)
+	chmod +x ./$(r3_linux) && ./$(r3_linux) -q
+#	./r3 -cs scrapbook.r3
+
 gitpull:
 	git pull
 	cd nw-sample-apps && git pull
@@ -23,9 +27,6 @@ run-bu: build
 	
 run-r3-wine: $(r3_windows) r3.exe
 	wine r3 -cs scrapbook.r3
-
-run-r3: $(r3_linux) r3
-	./r3 -cs scrapbook.r3
 
 run-nk: coffee dl-linux
 	$(nodekit_linux_bin) .
@@ -63,7 +64,7 @@ ace.js:
 build: coffee
 	rm build-dir/ -rf
 	mkdir -p build-dir/nw
-	cp -a *.r3 *.coffee coffee/ *.html *.json *.js build-dir/nw
+	cp -a *.r3 *.coffee coffee/ *.html *.json *.js makefile $(r3_linux) build-dir/nw
 	rm  -f build-dir/nw/local-*
 	cp -a $(r3_linux) build-dir/nw/r3 #./r3 is link
 	cd build-dir/nw && zip -r ../werecon.nw *

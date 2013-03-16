@@ -19,7 +19,10 @@
     setTimeout(bye, 1000);
   }
 
-  if (inBrowser) editor = ace.edit("editor");
+  if (inBrowser) {
+    editor = ace.edit("editor");
+    editor.getSession().setUseSoftTabs(false);
+  }
 
   if (haveNode) {
     spawn = require('child_process').spawn;

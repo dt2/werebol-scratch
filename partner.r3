@@ -49,7 +49,8 @@ call-child: funct[] [
 			reduce [system/script/header/file "loaded"]
 		]
 	]
-	send call [ "./r3" ["--quiet"] ]
+	send call [ "make" ["run-r3"] ]
+;	send call [ "./r3" ["--quiet"] ]
 	cmd: replace/all trim mold/only compose[
 		change-dir (global/env/workdir)
 		env: (global/env) 
@@ -254,10 +255,7 @@ do-cmd: funct[cmd args line][
 			send on-text reduce["reb-input" 'do ["reb-input"]]
 			send on-click reduce["restart" 'restart []]
 			
-			;send call [ "./r3" ["-cs" "scrapbook.r3"] ]
 			call-child
-			;send call-send child/last-input: mold/only [do %scrapbook.r3]
-			;send call-send mold 'quit
 			
 			send focus "reb-input"
 			files: reduce[
@@ -305,7 +303,7 @@ do-cmd: funct[cmd args line][
 				]
 			]
 			f: global/env/workdir/(child/file)
-			either exists? ?? f [
+			either exists? f [
 				edit-file to-string child/file
 			] [
 				send set-val reduce["editor" mold/only compose/deep[
@@ -363,16 +361,16 @@ do-cmd: funct[cmd args line][
 			]
 		]
 		call.exit [
-			print bite reduce [cmd args]
+			print line
 		]
 		call.close [
-			print bite reduce [cmd args]
+			print line
 		]
 		call.data [
 			print-child cmd args
 		]
 		call.error [
-			print bite reduce [cmd args]
+			print line
 		]
 	][
 		print ["unknown-cmd:" line]
@@ -403,10 +401,9 @@ edit-file: funct[f] [
 	] [
 		curs: object [row: 0 column: 0]
 	]
-	send set-val reduce["editor" object[
-		cursor: curs
-		content: s
-	]]
+	send set-val reduce["editor" object[ content: s ]]
+	; cursor-delay needed
+	send set-val reduce["editor" object[ cursor: curs ]]
 	send set-val reduce["edit-file" f]
 ]
 
