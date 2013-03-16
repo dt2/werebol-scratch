@@ -225,7 +225,7 @@ do-cmd: funct[cmd args line][
 					'files map []
 				]
 			]
-			?? global
+			;?? global
 			
 			/do [recon[
 			] exit ]
@@ -262,12 +262,12 @@ do-cmd: funct[cmd args line][
 				child/file
 				%local-child-init.r3
 			]
-			unless error? related: try[
+			if error? err: try[
+				;some hardening against accidental function 
 				h: first l: load/header global/env/workdir/(child/file)
-				get/any in h 'related
-			
+				files: union files get in h 'related
 			] [
-				files: union files related
+				probe err
 			]
 			data-list: copy ""
 			select-list: copy ""
