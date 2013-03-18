@@ -1,3 +1,6 @@
 [submodule "nw-sample-apps"]
 	path = nw-sample-apps
 	url = https://github.com/zcbenz/nw-sample-apps.git
+[submodule "r3-scratch"]
+	path = r3-scratch
+	url = https://github.com/dt2/r3-scratch
