@@ -11,24 +11,21 @@ nodekit_windows_bin = node-webkit-v0.4.2-win-ia32/nw.exe
 all: coffee run-nk
 #all: run-r3
 
-#run-r3: $(r3_linux)
-run-r3: make-rebol $(r3_linux)
+run-r3: r3-child
+	#cp -a r3 r3-child
+	chmod +x r3-child # unzipper broken
 	./r3-child -q
-#	chmod +x ./$(r3_linux) && ./$(r3_linux) -q
-#	./r3 -cs scrapbook.r3
 
-make-rebol: r3-source r3-source
-	cp -a $(r3_linux) r3-source/make/r3-make
-	make -C r3-source/make prep
-	make -C r3-source/make
-	cp -a rebol-source/make/r3 r3-child
+r3-child: 
+	cp -a $(r3_linux) r3-scratch/make/r3-make
+	make -C r3-scratch/make clean prep
+	make -C r3-scratch/make
+	cp -a r3-scratch/make/r3 r3-child
 	
-r3-source:
-	git clone https://github.com/rebol/r3.git r3-source
-
-gitpull:
+pull:
 	git pull
 	cd nw-sample-apps && git pull
+	cd r3-scratch && git pull
 
 run-bu: build
 	#$(nodekit_linux_bin) build-dir/werecon.nw
@@ -75,7 +72,7 @@ ace.js:
 build: coffee
 	rm build-dir/ -rf
 	mkdir -p build-dir/nw
-	cp -a *.r3 *.coffee coffee/ *.html *.json *.js makefile $(r3_linux) build-dir/nw
+	cp -a *.r3 *.coffee coffee/ *.html *.json *.js makefile r3-child build-dir/nw
 	rm  -f build-dir/nw/local-*
 	cp -a $(r3_linux) build-dir/nw/r3 #./r3 is link
 	cd build-dir/nw && zip -r ../werecon.nw *

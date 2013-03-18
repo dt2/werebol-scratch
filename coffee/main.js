@@ -73,6 +73,7 @@
         workdir = d.match(/tmp/) ? "" + process.execPath + "/.." : d;
         fs.chmodSync("" + d + "/r3", 0755);
         ls = spawn("" + d + "/r3", ["-cs", "" + d + "/partner.r3"], {
+          detached: true,
           stdio: 'pipe'
         });
         break;
@@ -305,6 +306,7 @@
           }
           return _results;
         })(), {
+          detached: true,
           stdio: 'pipe'
         });
         return task("call", function() {

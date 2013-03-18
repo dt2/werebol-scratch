@@ -257,7 +257,6 @@ do-cmd: funct[cmd args line][
 			
 			call-child
 			
-			send focus "reb-input"
 			files: reduce[
 				child/file
 				%local-child-init.r3
@@ -317,15 +316,19 @@ do-cmd: funct[cmd args line][
 					"new file"
 				]]
 			]
+
 			send on-click reduce["do-file" 'do-file [
 				"this-file" "editor"
 			] []]
+
 			send on-text reduce["edit-file" 'edit-file [
 				"edit-file" "this-file" "editor" 
 			]]
 			send on-click reduce["select-file" 'edit-file [
 				"select-file" "this-file" "editor" 
 			]]
+
+			
 		]
 		clicked text [
 			switch/default args/1/2 [
@@ -401,9 +404,10 @@ edit-file: funct[f] [
 	] [
 		curs: object [row: 0 column: 0]
 	]
-	send set-val reduce["editor" object[ content: s ]]
 	; cursor-delay needed
+	send set-val reduce["editor" object[ content: s ]]
 	send set-val reduce["editor" object[ cursor: curs ]]
+
 	send set-val reduce["edit-file" f]
 ]
 

@@ -55,7 +55,9 @@ main = () ->
 			d = "#{dir}/.."
 			workdir = if d.match /tmp/ then "#{process.execPath}/.." else d
 			fs.chmodSync "#{d}/r3", 0755
-			ls = spawn "#{d}/r3", ["-cs","#{d}/partner.r3"], {stdio: 'pipe'}
+			#fs.chmodSync "#{d}/r3-child", 0755
+			ls = spawn "#{d}/r3", ["-cs","#{d}/partner.r3"], 
+				{detached: true, stdio: 'pipe'}
 		when "win32"
 			#pipe does not work on wine
 			dir = if haveNodekit then "#{process.cwd()}\\coffee" else __dirname
@@ -222,7 +224,8 @@ handle = (cmd, args) ->
 					sendEvent e, "text"
 		when "call"
 			[path, args] = args
-			child = spawn path.s, (a.s for a in args), {stdio: 'pipe'}
+			child = spawn path.s, (a.s for a in args), 
+				{detached: true, stdio: 'pipe'}
 			task "call", () ->
 				child.on "exit", callout (code) ->
 					send "call.exit", code
