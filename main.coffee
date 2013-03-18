@@ -55,7 +55,7 @@ main = () ->
 			d = "#{dir}/.."
 			workdir = if d.match /tmp/ then "#{process.execPath}/.." else d
 			fs.chmodSync "#{d}/r3", 0755
-			#fs.chmodSync "#{d}/r3-child", 0755
+			fs.chmodSync "#{d}/r3-child", 0755
 			ls = spawn "#{d}/r3", ["-cs","#{d}/partner.r3"], 
 				{detached: true, stdio: 'pipe'}
 		when "win32"
@@ -244,7 +244,6 @@ handle = (cmd, args) ->
 		when "call-send"
 			child.stdin.write "#{args.s}\n"
 		when "call-kill"
-			plog args
 			child.kill()
 			
 		when "editor-set" #deprecated, use set-val

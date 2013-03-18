@@ -49,8 +49,10 @@ call-child: funct[] [
 			reduce [system/script/header/file "loaded"]
 		]
 	]
-	send call [ "make" ["run-r3"] ]
-;	send call [ "./r3" ["--quiet"] ]
+	
+	;send call [ "make" ["run-r3"] ]
+	send call [ "./r3-child" ["--quiet"] ]
+	
 	cmd: replace/all trim mold/only compose[
 		change-dir (global/env/workdir)
 		env: (global/env) 

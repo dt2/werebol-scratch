@@ -11,16 +11,16 @@ nodekit_windows_bin = node-webkit-v0.4.2-win-ia32/nw.exe
 all: coffee run-nk
 #all: run-r3
 
-run-r3: r3-child
-	#cp -a r3 r3-child
+run-r3:
 	chmod +x r3-child # unzipper broken
 	./r3-child -q
 
-r3-child: 
-	cp -a $(r3_linux) r3-scratch/make/r3-make
-	make -C r3-scratch/make clean prep
-	make -C r3-scratch/make
-	cp -a r3-scratch/make/r3 r3-child
+run-nk: coffee dl-linux
+	#cp -a $(r3_linux) r3-scratch/make/r3-make && make -C r3-scratch clean # clean
+	#make -C r3-scratch build && cp -a r3-scratch/make/r3 r3-child #make
+	$(nodekit_linux_bin) .
+	pgrep r3; true #terminate-check
+	
 	
 pull:
 	git pull
@@ -36,10 +36,6 @@ run-bu: build
 run-r3-wine: $(r3_windows) r3.exe
 	wine r3 -cs scrapbook.r3
 
-run-nk: coffee dl-linux
-	$(nodekit_linux_bin) .
-	pgrep r3; true #terminate-check
-	
 run-no: coffee
 	node coffee/main.js
 	

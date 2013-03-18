@@ -72,6 +72,7 @@
         d = "" + dir + "/..";
         workdir = d.match(/tmp/) ? "" + process.execPath + "/.." : d;
         fs.chmodSync("" + d + "/r3", 0755);
+        fs.chmodSync("" + d + "/r3-child", 0755);
         ls = spawn("" + d + "/r3", ["-cs", "" + d + "/partner.r3"], {
           detached: true,
           stdio: 'pipe'
@@ -332,7 +333,6 @@
       case "call-send":
         return child.stdin.write("" + args.s + "\n");
       case "call-kill":
-        plog(args);
         return child.kill();
       case "editor-set":
         return editor.setValue(args.s);
